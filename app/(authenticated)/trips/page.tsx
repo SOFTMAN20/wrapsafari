@@ -121,7 +121,10 @@ export default function EventsPage() {
       return data || [];
     },
     enabled: !!user?.id,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes - increased from 5
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const handleShowQR = async (event: any) => {
