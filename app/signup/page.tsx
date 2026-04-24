@@ -304,26 +304,26 @@ export default function SignupPage() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                     {/* Left Column - Controls */}
-                    <div className="space-y-6">
+                    <div className="space-y-4 lg:space-y-6">
                        {/* Color Pickers Section */}
                        <motion.div 
-                         className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-6 border border-gray-200 shadow-sm"
+                         className="bg-gradient-to-br from-white to-gray-50 rounded-2xl lg:rounded-3xl p-4 lg:p-6 border border-gray-200 shadow-sm"
                          initial={{ opacity: 0, y: 20 }}
                          animate={{ opacity: 1, y: 0 }}
                          transition={{ delay: 0.1 }}
                        >
-                         <div className="flex items-center gap-2 mb-5">
-                           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-forest to-forest-light flex items-center justify-center">
-                             <Paintbrush className="w-4 h-4 text-white" />
+                         <div className="flex items-center gap-2 mb-4 lg:mb-5">
+                           <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-gradient-to-br from-forest to-forest-light flex items-center justify-center">
+                             <Paintbrush className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-white" />
                            </div>
-                           <h3 className="font-black text-forest">Brand Colors</h3>
+                           <h3 className="font-black text-forest text-sm lg:text-base">Brand Colors</h3>
                          </div>
                          
-                         <div className="grid grid-cols-2 gap-4">
-                           <div className="space-y-3">
-                             <Label htmlFor="primaryColor" className="text-xs font-bold text-stone uppercase tracking-wider">
+                         <div className="grid grid-cols-2 gap-3 lg:gap-4">
+                           <div className="space-y-2 lg:space-y-3">
+                             <Label htmlFor="primaryColor" className="text-[10px] lg:text-xs font-bold text-stone uppercase tracking-wider">
                                Primary Color
                              </Label>
                              <div className="relative group">
@@ -332,21 +332,21 @@ export default function SignupPage() {
                                  type="color"
                                  value={branding.primaryColor}
                                  onChange={(e) => setBranding({ ...branding, primaryColor: e.target.value })}
-                                 className="h-20 bg-white cursor-pointer border-2 border-gray-200 hover:border-forest/50 transition-all"
+                                 className="h-16 lg:h-20 bg-white cursor-pointer border-2 border-gray-200 hover:border-forest/50 transition-all"
                                />
                                <div 
-                                 className="absolute inset-3 rounded-xl pointer-events-none border-4 border-white shadow-lg transition-transform group-hover:scale-95"
+                                 className="absolute inset-2 lg:inset-3 rounded-lg lg:rounded-xl pointer-events-none border-2 lg:border-4 border-white shadow-lg transition-transform group-hover:scale-95"
                                  style={{ backgroundColor: branding.primaryColor }}
                                />
                              </div>
-                             <div className="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-lg">
-                               <span className="text-[10px] font-bold text-stone uppercase">Hex</span>
-                               <code className="text-xs font-mono font-bold text-forest">{branding.primaryColor}</code>
+                             <div className="flex items-center justify-between px-2 lg:px-3 py-1.5 lg:py-2 bg-gray-100 rounded-lg">
+                               <span className="text-[9px] lg:text-[10px] font-bold text-stone uppercase">Hex</span>
+                               <code className="text-[10px] lg:text-xs font-mono font-bold text-forest">{branding.primaryColor}</code>
                              </div>
                            </div>
                            
-                           <div className="space-y-3">
-                             <Label htmlFor="accentColor" className="text-xs font-bold text-stone uppercase tracking-wider">
+                           <div className="space-y-2 lg:space-y-3">
+                             <Label htmlFor="accentColor" className="text-[10px] lg:text-xs font-bold text-stone uppercase tracking-wider">
                                Accent Color
                              </Label>
                              <div className="relative group">
@@ -355,16 +355,16 @@ export default function SignupPage() {
                                  type="color"
                                  value={branding.accentColor}
                                  onChange={(e) => setBranding({ ...branding, accentColor: e.target.value })}
-                                 className="h-20 bg-white cursor-pointer border-2 border-gray-200 hover:border-savanna/50 transition-all"
+                                 className="h-16 lg:h-20 bg-white cursor-pointer border-2 border-gray-200 hover:border-savanna/50 transition-all"
                                />
                                <div 
-                                 className="absolute inset-3 rounded-xl pointer-events-none border-4 border-white shadow-lg transition-transform group-hover:scale-95"
+                                 className="absolute inset-2 lg:inset-3 rounded-lg lg:rounded-xl pointer-events-none border-2 lg:border-4 border-white shadow-lg transition-transform group-hover:scale-95"
                                  style={{ backgroundColor: branding.accentColor }}
                                />
                              </div>
-                             <div className="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-lg">
-                               <span className="text-[10px] font-bold text-stone uppercase">Hex</span>
-                               <code className="text-xs font-mono font-bold text-savanna">{branding.accentColor}</code>
+                             <div className="flex items-center justify-between px-2 lg:px-3 py-1.5 lg:py-2 bg-gray-100 rounded-lg">
+                               <span className="text-[9px] lg:text-[10px] font-bold text-stone uppercase">Hex</span>
+                               <code className="text-[10px] lg:text-xs font-mono font-bold text-savanna">{branding.accentColor}</code>
                              </div>
                            </div>
                          </div>
@@ -372,19 +372,19 @@ export default function SignupPage() {
 
                        {/* Color Presets Section */}
                        <motion.div 
-                         className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-6 border border-gray-200 shadow-sm"
+                         className="bg-gradient-to-br from-white to-gray-50 rounded-2xl lg:rounded-3xl p-4 lg:p-6 border border-gray-200 shadow-sm"
                          initial={{ opacity: 0, y: 20 }}
                          animate={{ opacity: 1, y: 0 }}
                          transition={{ delay: 0.2 }}
                        >
-                         <div className="flex items-center gap-2 mb-5">
-                           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-savanna to-amber-500 flex items-center justify-center">
-                             <Sparkles className="w-4 h-4 text-white" />
+                         <div className="flex items-center gap-2 mb-4 lg:mb-5">
+                           <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-gradient-to-br from-savanna to-amber-500 flex items-center justify-center">
+                             <Sparkles className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-white" />
                            </div>
-                           <h3 className="font-black text-forest">Quick Presets</h3>
+                           <h3 className="font-black text-forest text-sm lg:text-base">Quick Presets</h3>
                          </div>
                          
-                         <div className="grid grid-cols-6 gap-3">
+                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 lg:gap-3">
                            {ColorPresets.map((preset, idx) => {
                              const isActive = branding.primaryColor === preset.primary && branding.accentColor === preset.accent;
                              return (
@@ -392,7 +392,7 @@ export default function SignupPage() {
                                  key={idx}
                                  type="button"
                                  onClick={() => setBranding({ ...branding, primaryColor: preset.primary, accentColor: preset.accent })}
-                                 className={`relative h-14 rounded-xl transition-all ${
+                                 className={`relative h-12 lg:h-14 rounded-lg lg:rounded-xl transition-all ${
                                    isActive
                                      ? 'scale-110 shadow-xl ring-4 ring-forest/30' 
                                      : 'hover:scale-105 hover:shadow-lg'
@@ -405,9 +405,9 @@ export default function SignupPage() {
                                    <motion.div
                                      initial={{ scale: 0 }}
                                      animate={{ scale: 1 }}
-                                     className="absolute -top-1 -right-1 w-5 h-5 bg-forest rounded-full flex items-center justify-center shadow-lg"
+                                     className="absolute -top-1 -right-1 w-4 h-4 lg:w-5 lg:h-5 bg-forest rounded-full flex items-center justify-center shadow-lg"
                                    >
-                                     <Check className="w-3 h-3 text-white" />
+                                     <Check className="w-2.5 h-2.5 lg:w-3 lg:h-3 text-white" />
                                    </motion.div>
                                  )}
                                </motion.button>
@@ -418,20 +418,20 @@ export default function SignupPage() {
 
                        {/* Logo Upload Section */}
                        <motion.div 
-                         className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-6 border border-gray-200 shadow-sm"
+                         className="bg-gradient-to-br from-white to-gray-50 rounded-2xl lg:rounded-3xl p-4 lg:p-6 border border-gray-200 shadow-sm"
                          initial={{ opacity: 0, y: 20 }}
                          animate={{ opacity: 1, y: 0 }}
                          transition={{ delay: 0.3 }}
                        >
-                         <div className="flex items-center gap-2 mb-5">
-                           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                             <Upload className="w-4 h-4 text-white" />
+                         <div className="flex items-center gap-2 mb-4 lg:mb-5">
+                           <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                             <Upload className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-white" />
                            </div>
-                           <h3 className="font-black text-forest">Agency Logo</h3>
+                           <h3 className="font-black text-forest text-sm lg:text-base">Agency Logo</h3>
                          </div>
                          
                          <div 
-                           className="relative flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed transition-all cursor-pointer group overflow-hidden"
+                           className="relative flex flex-col sm:flex-row items-center gap-3 lg:gap-4 p-4 lg:p-5 rounded-xl lg:rounded-2xl border-2 border-dashed transition-all cursor-pointer group overflow-hidden"
                            style={{
                              borderColor: branding.logoUrl ? branding.primaryColor + '60' : '#D1D5DB',
                              backgroundColor: branding.logoUrl ? branding.primaryColor + '08' : '#F9FAFB'
@@ -445,7 +445,7 @@ export default function SignupPage() {
                            }} />
                            
                            <div 
-                             className="relative z-10 h-24 w-24 rounded-2xl flex items-center justify-center overflow-hidden border-2 transition-all group-hover:scale-105 shadow-md"
+                             className="relative z-10 h-20 w-20 lg:h-24 lg:w-24 rounded-xl lg:rounded-2xl flex items-center justify-center overflow-hidden border-2 transition-all group-hover:scale-105 shadow-md flex-shrink-0"
                              style={{
                                backgroundColor: branding.logoUrl ? 'white' : branding.primaryColor + '15',
                                borderColor: branding.logoUrl ? branding.primaryColor + '40' : '#E5E7EB'
@@ -455,68 +455,70 @@ export default function SignupPage() {
                                <img src={branding.logoUrl} alt="Logo" className="h-full w-full object-contain p-2" />
                              ) : (
                                <div className="text-center">
-                                 <Upload size={32} className="text-stone mx-auto mb-1" />
-                                 <span className="text-[9px] font-bold text-stone uppercase">Upload</span>
+                                 <Upload size={28} className="text-stone mx-auto mb-1 lg:hidden" />
+                                 <Upload size={32} className="text-stone mx-auto mb-1 hidden lg:block" />
+                                 <span className="text-[8px] lg:text-[9px] font-bold text-stone uppercase">Upload</span>
                                </div>
                              )}
                            </div>
                            
-                           <div className="relative z-10 flex-1">
-                             <p className="font-black text-sm uppercase tracking-wider flex items-center gap-2 mb-1" style={{ color: branding.primaryColor }}>
+                           <div className="relative z-10 flex-1 text-center sm:text-left">
+                             <p className="font-black text-xs lg:text-sm uppercase tracking-wider flex items-center justify-center sm:justify-start gap-2 mb-1" style={{ color: branding.primaryColor }}>
                                {branding.logoUrl ? (
                                  <>
-                                   <Check className="w-4 h-4" />
+                                   <Check className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                                    Logo Uploaded
                                  </>
                                ) : (
                                  <>
-                                   <Sparkles size={14} />
+                                   <Sparkles size={12} className="lg:hidden" />
+                                   <Sparkles size={14} className="hidden lg:block" />
                                    Upload Your Logo
                                  </>
                                )}
                              </p>
-                             <p className="text-xs font-semibold text-stone">
+                             <p className="text-[10px] lg:text-xs font-semibold text-stone">
                                {branding.logoUrl ? 'Click to change your logo' : 'PNG, JPG or SVG • Max 2MB'}
                              </p>
                              {branding.logo && (
-                               <div className="mt-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-lg inline-block">
-                                 <p className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
-                                   <Check className="w-3 h-3" />
-                                   {branding.logo.name}
+                               <div className="mt-2 px-2 lg:px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-lg inline-block">
+                                 <p className="text-[9px] lg:text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                                   <Check className="w-2.5 h-2.5 lg:w-3 lg:h-3" />
+                                   <span className="truncate max-w-[120px] lg:max-w-none">{branding.logo.name}</span>
                                  </p>
                                </div>
                              )}
                            </div>
                            
-                           <ArrowRight className="relative z-10 w-6 h-6 text-stone group-hover:text-forest group-hover:translate-x-1 transition-all" />
+                           <ArrowRight className="relative z-10 w-5 h-5 lg:w-6 lg:h-6 text-stone group-hover:text-forest group-hover:translate-x-1 transition-all hidden sm:block" />
                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoChange} />
                          </div>
                        </motion.div>
                     </div>
 
                     {/* Right Column - Live Preview */}
-                    <div className="space-y-6">
+                    <div className="space-y-4 lg:space-y-6">
                        <motion.div
                          initial={{ opacity: 0, x: 20 }}
                          animate={{ opacity: 1, x: 0 }}
                          transition={{ delay: 0.2 }}
                        >
-                         <div className="flex items-center gap-2 mb-5">
-                           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                             <Layout className="w-4 h-4 text-white" />
+                         <div className="flex items-center gap-2 mb-4 lg:mb-5">
+                           <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                             <Layout className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-white" />
                            </div>
-                           <h3 className="font-black text-forest">Live Preview</h3>
+                           <h3 className="font-black text-forest text-sm lg:text-base">Live Preview</h3>
                            <div className="ml-auto">
                              <div className="flex items-center gap-1">
-                               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                               <span className="text-[10px] font-bold text-emerald-600 uppercase">Live</span>
+                               <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-emerald-500 animate-pulse" />
+                               <span className="text-[9px] lg:text-[10px] font-bold text-emerald-600 uppercase">Live</span>
                              </div>
                            </div>
                          </div>
                          
                          {/* Main Preview Card */}
                          <motion.div 
-                           className="rounded-3xl p-8 border-2 flex flex-col justify-center items-center text-center space-y-6 min-h-[450px] transition-all duration-500 shadow-xl"
+                           className="rounded-2xl lg:rounded-3xl p-6 lg:p-8 border-2 flex flex-col justify-center items-center text-center space-y-4 lg:space-y-6 min-h-[380px] lg:min-h-[450px] transition-all duration-500 shadow-xl"
                            style={{ 
                              background: `linear-gradient(135deg, ${branding.primaryColor}12 0%, ${branding.accentColor}12 100%)`,
                              borderColor: branding.primaryColor + '40'
@@ -532,7 +534,7 @@ export default function SignupPage() {
                               whileHover={{ scale: 1.05 }}
                             >
                               <motion.div
-                                className="absolute inset-0 rounded-[45px] blur-2xl opacity-30"
+                                className="absolute inset-0 rounded-[35px] lg:rounded-[45px] blur-2xl opacity-30"
                                 style={{ backgroundColor: branding.primaryColor }}
                                 animate={{
                                   scale: [1, 1.1, 1],
@@ -541,44 +543,44 @@ export default function SignupPage() {
                                 transition={{ duration: 2, repeat: Infinity }}
                               />
                               <motion.div 
-                                className="relative h-32 w-32 rounded-[45px] shadow-2xl flex items-center justify-center transition-all duration-500"
+                                className="relative h-24 w-24 lg:h-32 lg:w-32 rounded-[35px] lg:rounded-[45px] shadow-2xl flex items-center justify-center transition-all duration-500"
                                 style={{ backgroundColor: branding.primaryColor }}
                                 whileHover={{ rotate: 0 }}
                                 animate={{ rotate: [3, -3, 3] }}
                                 transition={{ duration: 4, repeat: Infinity }}
                               >
                                  {branding.logoUrl ? (
-                                   <img src={branding.logoUrl} className="h-20 w-20 object-contain rounded-[45px] p-2" alt="Logo" />
+                                   <img src={branding.logoUrl} className="h-16 w-16 lg:h-20 lg:w-20 object-contain rounded-[35px] lg:rounded-[45px] p-2" alt="Logo" />
                                  ) : (
-                                   <Building className="h-16 w-16 text-white" />
+                                   <Building className="h-12 w-12 lg:h-16 lg:w-16 text-white" />
                                  )}
                               </motion.div>
                             </motion.div>
                             
                             {/* Business Name */}
                             <div>
-                              <h4 className="text-3xl font-black text-ink mb-3">{formData.businessName || 'Your Agency'}</h4>
+                              <h4 className="text-2xl lg:text-3xl font-black text-ink mb-2 lg:mb-3">{formData.businessName || 'Your Agency'}</h4>
                               <motion.div 
-                                className="h-2 w-20 rounded-full mx-auto transition-all duration-500 shadow-sm" 
+                                className="h-1.5 lg:h-2 w-16 lg:w-20 rounded-full mx-auto transition-all duration-500 shadow-sm" 
                                 style={{ backgroundColor: branding.accentColor }}
-                                animate={{ width: ['60px', '80px', '60px'] }}
+                                animate={{ width: ['50px', '70px', '50px'] }}
                                 transition={{ duration: 2, repeat: Infinity }}
                               />
                             </div>
                             
                             {/* Sample Buttons */}
-                            <div className="flex flex-col gap-3 w-full max-w-xs">
+                            <div className="flex flex-col gap-2 lg:gap-3 w-full max-w-xs">
                               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                                 <Button 
                                   variant="default" 
                                   size="lg" 
-                                  className="w-full pointer-events-none transition-all duration-500 shadow-lg font-bold" 
+                                  className="w-full pointer-events-none transition-all duration-500 shadow-lg font-bold text-xs lg:text-sm" 
                                   style={{ 
                                     backgroundColor: branding.primaryColor,
                                     color: 'white'
                                   }}
                                 >
-                                  <Sparkles className="w-4 h-4 mr-2" />
+                                  <Sparkles className="w-3.5 h-3.5 lg:w-4 lg:h-4 mr-2" />
                                   Create Safari Wrap
                                 </Button>
                               </motion.div>
@@ -587,13 +589,13 @@ export default function SignupPage() {
                                 <Button 
                                   variant="outline" 
                                   size="lg" 
-                                  className="w-full pointer-events-none border-2 transition-all duration-500 font-bold" 
+                                  className="w-full pointer-events-none border-2 transition-all duration-500 font-bold text-xs lg:text-sm" 
                                   style={{ 
                                     borderColor: branding.primaryColor, 
                                     color: branding.primaryColor 
                                   }}
                                 >
-                                  <Camera className="w-4 h-4 mr-2" />
+                                  <Camera className="w-3.5 h-3.5 lg:w-4 lg:h-4 mr-2" />
                                   View Gallery
                                 </Button>
                               </motion.div>
@@ -625,28 +627,28 @@ export default function SignupPage() {
                          </motion.div>
                          
                          {/* Mini Preview Cards */}
-                         <div className="grid grid-cols-3 gap-3">
+                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 lg:gap-3">
                            {/* QR Code Preview */}
                            <motion.div 
-                             className="bg-white rounded-2xl p-4 border-2 border-gray-200 text-center hover:shadow-lg transition-all"
+                             className="bg-white rounded-xl lg:rounded-2xl p-3 lg:p-4 border-2 border-gray-200 text-center hover:shadow-lg transition-all"
                              whileHover={{ y: -4 }}
                            >
                              <div 
-                               className="w-14 h-14 rounded-xl mx-auto mb-2 flex items-center justify-center shadow-md"
+                               className="w-12 h-12 lg:w-14 lg:h-14 rounded-lg lg:rounded-xl mx-auto mb-2 flex items-center justify-center shadow-md"
                                style={{ backgroundColor: branding.primaryColor }}
                              >
-                               <div className="w-10 h-10 bg-white rounded-lg grid grid-cols-3 gap-[2px] p-1">
+                               <div className="w-8 h-8 lg:w-10 lg:h-10 bg-white rounded-md lg:rounded-lg grid grid-cols-3 gap-[2px] p-1">
                                  {[...Array(9)].map((_, i) => (
                                    <div key={i} className="bg-gray-800 rounded-[1px]" />
                                  ))}
                                </div>
                              </div>
-                             <p className="text-[9px] font-bold text-stone uppercase tracking-wider">QR Code</p>
+                             <p className="text-[8px] lg:text-[9px] font-bold text-stone uppercase tracking-wider">QR Code</p>
                            </motion.div>
                            
                            {/* Badge Preview */}
                            <motion.div 
-                             className="bg-white rounded-2xl p-4 border-2 border-gray-200 text-center hover:shadow-lg transition-all"
+                             className="bg-white rounded-xl lg:rounded-2xl p-3 lg:p-4 border-2 border-gray-200 text-center hover:shadow-lg transition-all"
                              whileHover={{ y: -4 }}
                            >
                              <div 

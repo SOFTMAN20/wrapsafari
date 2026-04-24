@@ -52,7 +52,26 @@ export default function LoginPage() {
         router.push('/dashboard');
       }, 500);
     } catch (err: any) {
-      setError(err.message || 'Invalid email or password.');
+      console.error('Login error:', err);
+      
+      // Handle specific error messages
+      let errorMessage = 'Failed to sign in. Please try again.';
+      
+      if (err.message) {
+        if (err.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials.';
+        } else if (err.message.includes('Email not confirmed')) {
+          errorMessage = 'Please confirm your email address before logging in.';
+        } else if (err.message.includes('Failed to fetch')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (err.message.includes('environment variables')) {
+          errorMessage = 'Configuration error. Please contact support.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
       setIsLoading(false);
     }
   };
