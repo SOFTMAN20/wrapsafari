@@ -65,47 +65,13 @@ export const authApi = {
 
     console.log('✅ Session created, proceeding with operator setup...');
 
-    // Session exists - user can login immediately
-    // Create profile and operator records
-    
-    // 2. Create profile record
-    console.log('💾 Creating profile record...');
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: authData.user.id,
-        email: email,
-        full_name: name,
-        role: role,
-      });
-
-    if (profileError) {
-      console.error('❌ Profile creation error:', profileError);
-      // Continue anyway - might already exist
-    } else {
-      console.log('✅ Profile created');
-    }
-
-    // 3. Create operator record
-    console.log('💾 Creating operator record...');
-    const { error: operatorCreateError } = await supabase
-      .from('operators')
-      .insert({
-        id: authData.user.id,
-        business_name: businessName,
-        brand_color_1: brandColor1,
-        brand_color_2: brandColor2,
-      });
-
-    if (operatorCreateError) {
-      console.error('❌ Operator creation error:', operatorCreateError);
-      throw new Error('Failed to create operator account. Please contact support.');
-    }
-    console.log('✅ Operator record created');
+    // Session exists - trigger has already created profile, operator, and subscription
+    // Wait a moment for trigger to complete
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     let logoUrl: string | null = null;
 
-    // 4. Upload logo if provided
+    // 2. Upload logo if provided
     if (logoFile) {
       console.log('📤 Uploading logo...');
       const ext = logoFile.name.split('.').pop();
@@ -127,7 +93,7 @@ export const authApi = {
       }
     }
 
-    // 5. Update operator record with logo if uploaded
+    // 3. Update operator record with logo if uploaded
     if (logoUrl) {
       console.log('💾 Updating operator with logo URL...');
       const { error: logoUpdateError } = await supabase

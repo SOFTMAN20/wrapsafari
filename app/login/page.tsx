@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,9 +27,30 @@ export default function LoginPage() {
     setIsLoading(true);
     setError('');
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!password) {
+      setError('Please enter your password.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await signIn(email, password);
-      router.push('/dashboard');
+      await signIn(email.trim().toLowerCase(), password);
+      
+      // Show success message
+      toast.success('Welcome back! 👋');
+      
+      // Redirect to dashboard
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
     } catch (err: any) {
       setError(err.message || 'Invalid email or password.');
       setIsLoading(false);

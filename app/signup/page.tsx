@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PoweredByFooter } from '../_components/PoweredByFooter';
 import { ColorPresets } from '@/lib/constants';
+import { toast } from 'sonner';
 
 export default function SignupPage() {
   const [step, setStep] = useState(1);
@@ -36,7 +37,40 @@ export default function SignupPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleNext = () => setStep(2);
+  const handleNext = () => {
+    // Validate Step 1 fields
+    if (!formData.name.trim()) {
+      setError('Please enter your name.');
+      return;
+    }
+    if (!formData.businessName.trim()) {
+      setError('Please enter your business name.');
+      return;
+    }
+    if (!formData.email.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    
+    if (!formData.password) {
+      setError('Please enter a password.');
+      return;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+    
+    setError('');
+    setStep(2);
+  };
   const handleBack = () => setStep(1);
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,9 +89,24 @@ export default function SignupPage() {
     setIsLoading(true);
     setError('');
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate password length
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       await signUp({
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
         name: formData.name,
         businessName: formData.businessName,
@@ -65,9 +114,28 @@ export default function SignupPage() {
         brandColor2: branding.accentColor,
         logoFile: branding.logo,
       });
-      router.push('/');
+      
+      // Show success message
+      toast.success('Account created successfully! Welcome to SafariWrap 🎉');
+      
+      // Redirect to dashboard after successful signup
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
     } catch (err: any) {
-      setError(err.message || 'Failed to create account.');
+      // Handle specific error messages
+      const errorMessage = err.message || 'Failed to create account.';
+      
+      if (errorMessage.includes('User already registered')) {
+        setError('This email is already registered. Please login instead.');
+      } else if (errorMessage.includes('email')) {
+        setError('Please check your email to confirm your account before logging in.');
+      } else if (errorMessage.includes('Password')) {
+        setError('Password must be at least 6 characters long.');
+      } else {
+        setError(errorMessage);
+      }
+      
       setIsLoading(false);
     }
   };
@@ -180,7 +248,10 @@ export default function SignupPage() {
                         type="email"
                         placeholder="jane@serengetisoul.com"
                         value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        onChange={(e) => {
+                          setFormData({ ...formData, email: e.target.value });
+                          setError(''); // Clear error on change
+                        }}
                         className="pl-12 bg-white/50"
                         autoComplete="email"
                         required
