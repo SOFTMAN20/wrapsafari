@@ -184,11 +184,11 @@ export default function SignupPage() {
           </div>
 
           {/* Header */}
-          <header className="mb-12">
-            <h1 className="text-3xl lg:text-5xl font-black text-forest">
+          <header className="mb-8 lg:mb-12">
+            <h1 className="text-2xl lg:text-3xl xl:text-5xl font-black text-forest">
               {step === 1 ? 'About your agency' : 'Design your identity'}
             </h1>
-            <p className="text-stone font-bold mt-2">
+            <p className="text-sm lg:text-base text-stone font-bold mt-2">
               {step === 1 ? 'Tell us who you are and how to reach you.' : 'How should your guests see your brand?'}
             </p>
           </header>
@@ -196,7 +196,7 @@ export default function SignupPage() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="rounded-[40px] border border-dust bg-white/80 backdrop-blur-lg p-8 lg:p-12 shadow-xl lg:shadow-none"
+            className="rounded-3xl lg:rounded-[40px] border border-dust bg-white/80 backdrop-blur-lg p-5 sm:p-6 lg:p-12 shadow-xl lg:shadow-none"
           >
             <AnimatePresence mode="wait">
               {step === 1 ? (
@@ -205,34 +205,34 @@ export default function SignupPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
-                  className="space-y-6"
+                  className="space-y-4 lg:space-y-6"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Your Name</Label>
+                      <Label htmlFor="name" className="text-sm lg:text-base">Your Name</Label>
                       <div className="relative">
-                        <User className="absolute left-4 top-3.5 h-5 w-5 text-stone/50" />
+                        <User className="absolute left-3 lg:left-4 top-3 lg:top-3.5 h-4 w-4 lg:h-5 lg:w-5 text-stone/50" />
                         <Input
                           id="name"
                           placeholder="Jane Safari"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="pl-12 bg-white/50"
+                          className="pl-10 lg:pl-12 bg-white/50 h-11 lg:h-12"
                           required
                         />
                       </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="businessName">Agency Name</Label>
+                      <Label htmlFor="businessName" className="text-sm lg:text-base">Agency Name</Label>
                       <div className="relative">
-                        <Building className="absolute left-4 top-3.5 h-5 w-5 text-stone/50" />
+                        <Building className="absolute left-3 lg:left-4 top-3 lg:top-3.5 h-4 w-4 lg:h-5 lg:w-5 text-stone/50" />
                         <Input
                           id="businessName"
                           placeholder="Serengeti Soul Expeditions"
                           value={formData.businessName}
                           onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                          className="pl-12 bg-white/50"
+                          className="pl-10 lg:pl-12 bg-white/50 h-11 lg:h-12"
                           required
                         />
                       </div>
@@ -240,9 +240,9 @@ export default function SignupPage() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="email">Business Email</Label>
+                    <Label htmlFor="email" className="text-sm lg:text-base">Business Email</Label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-3.5 h-5 w-5 text-stone/50" />
+                      <Mail className="absolute left-3 lg:left-4 top-3 lg:top-3.5 h-4 w-4 lg:h-5 lg:w-5 text-stone/50" />
                       <Input
                         id="email"
                         type="email"
@@ -252,7 +252,7 @@ export default function SignupPage() {
                           setFormData({ ...formData, email: e.target.value });
                           setError(''); // Clear error on change
                         }}
-                        className="pl-12 bg-white/50"
+                        className="pl-10 lg:pl-12 bg-white/50 h-11 lg:h-12"
                         autoComplete="email"
                         required
                       />
@@ -260,16 +260,16 @@ export default function SignupPage() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="password">Secure Password</Label>
+                    <Label htmlFor="password" className="text-sm lg:text-base">Secure Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-3.5 h-5 w-5 text-stone/50" />
+                      <Lock className="absolute left-3 lg:left-4 top-3 lg:top-3.5 h-4 w-4 lg:h-5 lg:w-5 text-stone/50" />
                       <Input
                         id="password"
                         type="password"
                         placeholder="••••••••"
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        className="pl-12 bg-white/50"
+                        className="pl-10 lg:pl-12 bg-white/50 h-11 lg:h-12"
                         autoComplete="new-password"
                         required
                       />
@@ -277,13 +277,14 @@ export default function SignupPage() {
                   </div>
                   
                   <Button
-                    className="w-full h-14 text-lg gap-2 mt-8"
+                    className="w-full h-12 lg:h-14 text-base lg:text-lg gap-2 mt-6 lg:mt-8"
                     onClick={handleNext}
                     disabled={!formData.email || !formData.password || !formData.name || !formData.businessName}
                     size="lg"
                   >
-                    Continue to Branding
-                    <ArrowRight className="h-5 w-5" />
+                    <span className="hidden sm:inline">Continue to Branding</span>
+                    <span className="sm:hidden">Continue</span>
+                    <ArrowRight className="h-4 w-4 lg:h-5 lg:w-5" />
                   </Button>
                 </motion.div>
               ) : (
@@ -687,26 +688,26 @@ export default function SignupPage() {
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="rounded-2xl bg-red-50 p-5 border-2 border-red-200 my-8"
+                      className="rounded-xl lg:rounded-2xl bg-red-50 p-4 lg:p-5 border-2 border-red-200 my-6 lg:my-8"
                     >
-                      <p className="text-sm font-bold text-red-600 text-center flex items-center justify-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs">!</span>
-                        {error}
+                      <p className="text-xs lg:text-sm font-bold text-red-600 text-center flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 lg:w-5 lg:h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] lg:text-xs flex-shrink-0">!</span>
+                        <span className="break-words">{error}</span>
                       </p>
                     </motion.div>
                   )}
 
-                  <div className="flex space-x-4 mt-12 pt-8 border-t-2 border-gray-200">
+                  <div className="flex gap-3 lg:gap-4 mt-8 lg:mt-12 pt-6 lg:pt-8 border-t-2 border-gray-200">
                     <Button
                       variant="ghost"
-                      className="px-8 gap-2 hover:bg-gray-100"
+                      className="px-4 lg:px-8 gap-1 lg:gap-2 hover:bg-gray-100"
                       onClick={handleBack}
                     >
                       <ArrowLeft className="h-4 w-4" />
-                      Back
+                      <span className="text-sm lg:text-base">Back</span>
                     </Button>
                     <Button
-                      className="flex-1 h-16 text-lg gap-2 font-bold shadow-xl transition-all hover:scale-105"
+                      className="flex-1 h-14 lg:h-16 text-sm lg:text-lg gap-1 lg:gap-2 font-bold shadow-xl transition-all hover:scale-105"
                       disabled={isLoading}
                       onClick={handleSignup}
                       style={{
@@ -716,14 +717,16 @@ export default function SignupPage() {
                     >
                       {isLoading ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Creating Your Platform...
+                          <div className="w-4 h-4 lg:w-5 lg:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span className="hidden sm:inline">Creating Your Platform...</span>
+                          <span className="sm:hidden">Creating...</span>
                         </>
                       ) : (
                         <>
-                          <Sparkles className="h-5 w-5" />
-                          Launch My Platform
-                          <ArrowRight className="h-5 w-5" />
+                          <Sparkles className="h-4 w-4 lg:h-5 lg:w-5" />
+                          <span className="hidden sm:inline">Launch My Platform</span>
+                          <span className="sm:hidden">Launch Platform</span>
+                          <ArrowRight className="h-4 w-4 lg:h-5 lg:w-5" />
                         </>
                       )}
                     </Button>
@@ -734,8 +737,8 @@ export default function SignupPage() {
           </motion.div>
 
           {step === 1 && (
-            <div className="mt-12 text-center lg:text-left ml-4">
-              <p className="text-sm font-bold text-stone">
+            <div className="mt-8 lg:mt-12 text-center lg:text-left ml-0 lg:ml-4">
+              <p className="text-xs lg:text-sm font-bold text-stone">
                 Already part of the safari?{' '}
                 <Link href="/login" className="text-forest hover:underline decoration-2 underline-offset-4">
                   Sign In
