@@ -65,6 +65,16 @@ export default function TrackSafariPage() {
     START_TIME: 'safari_track_start_time',
   };
 
+  // Scroll to map function
+  const scrollToMap = () => {
+    if (mapContainerRef.current) {
+      mapContainerRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }
+  };
+
   // Initialize map
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -356,15 +366,23 @@ export default function TrackSafariPage() {
       const lastPoint = points[points.length - 1];
       const currentEl = document.createElement('div');
       currentEl.className = 'current-marker';
-      currentEl.style.width = '24px';
-      currentEl.style.height = '24px';
-      currentEl.style.borderRadius = '50%';
-      currentEl.style.backgroundColor = '#3B82F6';
-      currentEl.style.border = '4px solid white';
-      currentEl.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+      currentEl.style.position = 'relative';
+      currentEl.style.width = '40px';
+      currentEl.style.height = '40px';
+      currentEl.style.display = 'flex';
+      currentEl.style.alignItems = 'center';
+      currentEl.style.justifyContent = 'center';
+      
+      // Create pin icon using SVG
+      currentEl.innerHTML = `
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="#3B82F6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="10" r="3" fill="white"/>
+        </svg>
+      `;
       currentEl.style.animation = 'pulse 2s infinite';
       
-      currentMarkerRef.current = new mapboxgl.Marker({ element: currentEl })
+      currentMarkerRef.current = new mapboxgl.Marker({ element: currentEl, anchor: 'bottom' })
         .setLngLat([lastPoint.lng, lastPoint.lat])
         .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(
           `<div style="padding: 8px;">
@@ -546,6 +564,11 @@ export default function TrackSafariPage() {
       return;
     }
 
+    // Scroll to map on mobile
+    setTimeout(() => {
+      scrollToMap();
+    }, 300);
+
     setIsTracking(true);
     setRoutePoints([]);
     setStats(null);
@@ -624,20 +647,28 @@ export default function TrackSafariPage() {
                 .addTo(mapRef.current);
             }
             
-            // Update or create current position marker (blue, pulsing)
+            // Update or create current position marker (blue pin, pulsing)
             if (currentMarkerRef.current) {
               currentMarkerRef.current.setLngLat([newPoint.lng, newPoint.lat]);
             } else {
-              // Create custom current position marker element
+              // Create custom current position marker element with pin icon
               const currentEl = document.createElement('div');
               currentEl.className = 'current-marker';
-              currentEl.style.width = '24px';
-              currentEl.style.height = '24px';
-              currentEl.style.borderRadius = '50%';
-              currentEl.style.backgroundColor = '#3B82F6'; // Blue
-              currentEl.style.border = '4px solid white';
-              currentEl.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+              currentEl.style.position = 'relative';
+              currentEl.style.width = '40px';
+              currentEl.style.height = '40px';
+              currentEl.style.display = 'flex';
+              currentEl.style.alignItems = 'center';
+              currentEl.style.justifyContent = 'center';
               currentEl.style.cursor = 'pointer';
+              
+              // Create pin icon using SVG
+              currentEl.innerHTML = `
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="#3B82F6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="10" r="3" fill="white"/>
+                </svg>
+              `;
               currentEl.style.animation = 'pulse 2s infinite';
               
               // Add pulsing animation
@@ -645,19 +676,22 @@ export default function TrackSafariPage() {
               style.textContent = `
                 @keyframes pulse {
                   0% {
-                    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+                    transform: scale(1);
+                    opacity: 1;
                   }
-                  70% {
-                    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+                  50% {
+                    transform: scale(1.1);
+                    opacity: 0.8;
                   }
                   100% {
-                    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+                    transform: scale(1);
+                    opacity: 1;
                   }
                 }
               `;
               document.head.appendChild(style);
               
-              currentMarkerRef.current = new mapboxgl.Marker({ element: currentEl })
+              currentMarkerRef.current = new mapboxgl.Marker({ element: currentEl, anchor: 'bottom' })
                 .setLngLat([newPoint.lng, newPoint.lat])
                 .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(
                   `<div style="padding: 8px;">

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { 
   LayoutDashboard, 
   Map, 
@@ -54,11 +55,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleSignOut = async () => {
+    try {
+      setIsLoggingOut(true);
+      toast.loading('Signing out...', { id: 'logout' });
+      
+      await onSignOut();
+      
+      toast.success('Signed out successfully! 👋', { id: 'logout' });
+      
+      // Small delay to show toast before redirect
+      setTimeout(() => {
+        router.push('/login');
+      }, 500);
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to sign out. Please try again.', { id: 'logout' });
+      setIsLoggingOut(false);
+    }
+  };
 
   const sidebarContent = (onClose?: () => void) => (
     <div className="flex flex-col h-full">
@@ -138,8 +160,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <Separator className="bg-white/10" />
 
       {/* User Profile */}
-      <div className="p-4">
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+      <div className="p-4 space-y-2">
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
           <Avatar className="w-10 h-10 border-2 border-white/20">
             <AvatarImage src={operator?.logo_url || undefined} />
             <AvatarFallback className="bg-gradient-to-br from-forest to-forest-light text-white font-bold">
@@ -154,15 +176,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {mounted ? (user?.email || 'Loading...') : 'Loading...'}
             </p>
           </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="text-white/60 hover:text-white hover:bg-white/10"
-            onClick={onSignOut}
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
         </div>
+        
+        {/* Logout Button */}
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-white/70 hover:text-white hover:bg-red-500/20 hover:border-red-500/30 border border-white/10 h-11"
+          onClick={handleSignOut}
+          disabled={isLoggingOut}
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="font-semibold">{isLoggingOut ? 'Signing out...' : 'Sign Out'}</span>
+        </Button>
       </div>
     </div>
   );
