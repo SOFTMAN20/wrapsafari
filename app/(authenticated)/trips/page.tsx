@@ -101,7 +101,14 @@ export default function EventsPage() {
       const { data, error } = await supabase
         .from('events')
         .select(`
-          *,
+          id,
+          title,
+          location,
+          start_date,
+          end_date,
+          status,
+          metadata,
+          created_at,
           qr_codes (
             id,
             short_code,
@@ -121,10 +128,11 @@ export default function EventsPage() {
       return data || [];
     },
     enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes - increased from 5
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    placeholderData: (previousData) => previousData, // Keep showing old data while refetching
   });
 
   const handleShowQR = async (event: any) => {

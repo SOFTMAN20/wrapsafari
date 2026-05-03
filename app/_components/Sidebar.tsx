@@ -65,19 +65,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleSignOut = async () => {
     try {
       setIsLoggingOut(true);
-      toast.loading('Signing out...', { id: 'logout' });
       
       await onSignOut();
       
-      toast.success('Signed out successfully! 👋', { id: 'logout' });
+      toast.success('Signed out successfully! 👋', { duration: 2000 });
       
-      // Small delay to show toast before redirect
-      setTimeout(() => {
-        router.push('/login');
-      }, 500);
+      // Redirect immediately
+      router.push('/login');
     } catch (error) {
       console.error('Logout error:', error);
-      toast.error('Failed to sign out. Please try again.', { id: 'logout' });
+      toast.error('Failed to sign out. Please try again.');
+      setIsLoggingOut(false);
+    }
+  };
       setIsLoggingOut(false);
     }
   };

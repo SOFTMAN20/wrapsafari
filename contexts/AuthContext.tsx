@@ -103,9 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setProfile(null);
           setOperator(null);
-          if (event === 'SIGNED_OUT') {
-            window.location.href = '/';
-          }
+          // Don't redirect here - let the component handle it
         }
       }
     );

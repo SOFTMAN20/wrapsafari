@@ -95,11 +95,11 @@ export default function DashboardPage() {
       ] = await Promise.all([
         supabase
           .from('events')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .eq('operator_id', user.id),
         supabase
           .from('events')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .eq('operator_id', user.id)
           .eq('status', 'upcoming'),
         supabase
@@ -136,25 +136,25 @@ export default function DashboardPage() {
       ] = await Promise.all([
         supabase
           .from('reviews')
-          .select('star_rating, event_id')
+          .select('star_rating')
           .in('event_id', eventIds),
         supabase
           .from('wraps')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .in('event_id', eventIds),
         supabase
           .from('events')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .eq('operator_id', user.id)
           .gte('created_at', startOfMonth.toISOString()),
         supabase
           .from('reviews')
-          .select('id, event_id')
+          .select('id')
           .gte('created_at', startOfMonth.toISOString())
           .in('event_id', eventIds),
         supabase
           .from('wraps')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .gte('created_at', startOfMonth.toISOString())
           .in('event_id', eventIds),
       ]);
@@ -179,10 +179,11 @@ export default function DashboardPage() {
       };
     },
     enabled: !!user?.id,
-    staleTime: 5 * 60 * 1000, // 5 minutes - increased from 2
-    gcTime: 10 * 60 * 1000, // 10 minutes - increased from 5
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Don't refetch on mount if data exists
+    refetchOnMount: false,
+    placeholderData: (previousData) => previousData, // Keep showing old data while refetching
   });
 
   // Optimized upcoming events query
@@ -203,10 +204,11 @@ export default function DashboardPage() {
       return data || [];
     },
     enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000, // 10 minutes - increased from 5
-    gcTime: 15 * 60 * 1000, // 15 minutes - increased from 10
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    placeholderData: (previousData) => previousData,
   });
 
   // Optimized recent activity query
@@ -275,6 +277,9 @@ export default function DashboardPage() {
     enabled: !!user?.id,
     staleTime: 1 * 60 * 1000, // 1 minute for activity
     gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    placeholderData: (previousData) => previousData,
   });
 
   // Memoized helper function

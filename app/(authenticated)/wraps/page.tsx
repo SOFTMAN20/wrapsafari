@@ -56,16 +56,16 @@ export default function WrapsPage() {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      // Get operator's event IDs
+      // Get operator's event IDs (only IDs needed)
       const { data: events } = await supabase
         .from('events')
-        .select('id, type')
+        .select('id')
         .eq('operator_id', user.id);
 
       const eventIds = events?.map(e => e.id) || [];
       if (eventIds.length === 0) return [];
 
-      // Build query
+      // Build query with specific fields only
       let query = supabase
         .from('wraps')
         .select('id, guest_name, created_at, event_id, events!inner(title, type)')
@@ -82,7 +82,11 @@ export default function WrapsPage() {
       return data as Wrap[];
     },
     enabled: !!user?.id && mounted,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // 10 minutes (increased from 2)
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    placeholderData: (previousData) => previousData,
   });
 
   // Filter by search query
