@@ -78,9 +78,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       setIsLoggingOut(false);
     }
   };
-      setIsLoggingOut(false);
-    }
-  };
 
   const sidebarContent = (onClose?: () => void) => (
     <div className="flex flex-col h-full">
