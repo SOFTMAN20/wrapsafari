@@ -3,7 +3,7 @@
 import { MapPin, Star, Share2, Heart, Camera, Clock, Award, Compass, TreePine, CheckCircle2, Users, Binoculars, Trophy, Map, Twitter, Facebook, MessageCircle, Link2, Copy, Download, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { domToPng } from 'modern-screenshot';
 
 interface GuestWrapPageProps {
@@ -17,7 +17,12 @@ export default function GuestWrapPage({ wrapData }: GuestWrapPageProps) {
   const [showImagePreview, setShowImagePreview] = useState(false);
   
   // Generate certificate number once on client side to avoid hydration mismatch
-  const [certNumber] = useState(() => Math.floor(Math.random() * 900000) + 100000);
+  const [certNumber, setCertNumber] = useState<number>(100000);
+  
+  // Set certificate number only on client side after mount
+  useEffect(() => {
+    setCertNumber(Math.floor(Math.random() * 900000) + 100000);
+  }, []);
 
   // Transform wrap data
   const transformedData = {

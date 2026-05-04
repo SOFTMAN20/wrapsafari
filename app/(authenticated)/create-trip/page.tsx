@@ -67,19 +67,28 @@ export default function CreateTripPage() {
   }, []);
   
   // Optimized destinations query with caching
-  const { data: destinations, isLoading: destinationsLoading } = useQuery({
+  const { data: destinations, isLoading: destinationsLoading, error: destinationsError } = useQuery({
     queryKey: queryKeys.destinations,
     queryFn: async () => {
+      console.log('🔍 Fetching destinations...');
       const { data, error } = await supabase
         .from('destinations')
         .select('id, name, country, emoji')
         .order('name');
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Destinations fetch error:', error);
+        throw error;
+      }
+      console.log('✅ Destinations fetched:', data?.length || 0);
       return data || [];
     },
+    enabled: mounted, // Only fetch when component is mounted
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
+    retry: 3, // Retry 3 times on failure
+    refetchOnMount: false, // Don't refetch on every mount
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
   
   const [formData, setFormData] = useState({
@@ -633,8 +642,21 @@ export default function CreateTripPage() {
                   <div className="space-y-3">
                     <Label>Destinations (Optional)</Label>
                     <p className="text-xs text-stone">Select safari destinations or leave empty</p>
-                  {destinationsLoading ? (
-                    <p className="text-sm text-stone">Loading destinations...</p>
+                  {!mounted ? (
+                    <p className="text-sm text-stone">Initializing...</p>
+                  ) : destinationsLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-forest border-t-transparent rounded-full animate-spin" />
+                      <p className="text-sm text-stone">Loading destinations...</p>
+                    </div>
+                  ) : destinationsError ? (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        Failed to load destinations. You can still create the event without destinations.
+                      </p>
+                      <p className="text-xs text-red-500 mt-1">Error: {destinationsError?.message || 'Unknown error'}</p>
+                    </div>
                   ) : (
                     <>
                       <Select onValueChange={addDestination}>
@@ -642,15 +664,21 @@ export default function CreateTripPage() {
                           <SelectValue placeholder="Add destinations (optional)" />
                         </SelectTrigger>
                         <SelectContent>
-                          {destinations?.map((destination: any) => (
-                            <SelectItem 
-                              key={destination.id} 
-                              value={destination.id}
-                              disabled={formData.destination_ids.includes(destination.id)}
-                            >
-                              {destination.name} ({destination.country})
+                          {destinations && destinations.length > 0 ? (
+                            destinations.map((destination: any) => (
+                              <SelectItem 
+                                key={destination.id} 
+                                value={destination.id}
+                                disabled={formData.destination_ids.includes(destination.id)}
+                              >
+                                {destination.name} ({destination.country})
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="no-destinations" disabled>
+                              No destinations available
                             </SelectItem>
-                          ))}
+                          )}
                         </SelectContent>
                       </Select>
                       

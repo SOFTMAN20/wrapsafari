@@ -16,18 +16,15 @@ export default async function WrapPage({ params }: WrapPageProps) {
   // Create Supabase server client
   const supabase = await createClient();
 
-  // Fetch wrap data with review and event details
+  // Fetch wrap data with event and operator details
   const { data: wrap, error } = await supabase
     .from('wraps')
     .select(`
       *,
-      reviews (
+      events (
         *,
-        events (
-          *,
-          operators (
-            *
-          )
+        operators (
+          *
         )
       )
     `)
@@ -56,18 +53,18 @@ export default async function WrapPage({ params }: WrapPageProps) {
   console.log('✅ Wrap fetched successfully:', {
     wrapId: wrap.id,
     guestName: wrap.guest_name,
-    hasReview: !!wrap.reviews,
-    hasEvent: !!wrap.reviews?.events,
-    hasOperator: !!wrap.reviews?.events?.operators,
+    hasEvent: !!wrap.events,
+    hasOperator: !!wrap.events?.operators,
   });
 
   // Transform data for GuestWrapPage component
+  // Reviews data is stored in wrap.data JSONB field
   const wrapData = {
     ...wrap,
     guest_name: wrap.guest_name,
     data: wrap.data,
-    reviews: wrap.reviews,
-    events: wrap.reviews?.events,
+    reviews: wrap.data, // Reviews data is in the data JSONB field
+    events: wrap.events,
   };
 
   return <GuestWrapPage wrapData={wrapData} />;

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { WrapData } from '@/lib/wrap-engine';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ImpactSlideProps {
   wrapData: WrapData;
@@ -12,7 +12,12 @@ export default function ImpactSlide({ wrapData }: ImpactSlideProps) {
   const { trees_planted, co2_offset_kg } = wrapData.environmental_impact;
   
   // Generate certificate number once on client side to avoid hydration mismatch
-  const [certNumber] = useState(() => Math.floor(Math.random() * 900000) + 100000);
+  const [certNumber, setCertNumber] = useState<number>(100000);
+  
+  // Set certificate number only on client side after mount
+  useEffect(() => {
+    setCertNumber(Math.floor(Math.random() * 900000) + 100000);
+  }, []);
 
   return (
     <div className="w-full bg-parchment py-12 px-6">
