@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     // Get operator's events
     const { data: events, error: eventsError } = await supabase
       .from('events')
-      .select('id, created_at, type, status')
+      .select('id, created_at, type, status, metadata')
       .eq('operator_id', operatorId);
 
     if (eventsError) {
@@ -147,23 +147,29 @@ export async function GET(request: NextRequest) {
     const destinationMap = new Map<string, { events: number; rating: number; guests: Set<string> }>();
     
     events?.forEach(event => {
-      const metadata = event.metadata as any;
-      const destinations = metadata?.destination_names || [];
-      
-      destinations.forEach((dest: string) => {
-        if (!destinationMap.has(dest)) {
-          destinationMap.set(dest, { events: 0, rating: 0, guests: new Set() });
-        }
-        const destData = destinationMap.get(dest)!;
-        destData.events++;
+      try {
+        const metadata = event.metadata as any;
+        const destinations = metadata?.destination_names || [];
         
-        // Get reviews for this event
-        const eventReviews = reviews?.filter(r => r.event_id === event.id) || [];
-        eventReviews.forEach(r => {
-          destData.guests.add(r.guest_name);
-          destData.rating += r.star_rating;
-        });
-      });
+        if (Array.isArray(destinations)) {
+          destinations.forEach((dest: string) => {
+            if (!destinationMap.has(dest)) {
+              destinationMap.set(dest, { events: 0, rating: 0, guests: new Set() });
+            }
+            const destData = destinationMap.get(dest)!;
+            destData.events++;
+            
+            // Get reviews for this event
+            const eventReviews = reviews?.filter(r => r.event_id === event.id) || [];
+            eventReviews.forEach(r => {
+              destData.guests.add(r.guest_name);
+              destData.rating += r.star_rating;
+            });
+          });
+        }
+      } catch (err) {
+        console.error('Error processing event metadata:', err);
+      }
     });
 
     const topDestinations = Array.from(destinationMap.entries())
