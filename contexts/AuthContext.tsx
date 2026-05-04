@@ -41,24 +41,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function loadProfile(userId: string) {
     try {
-      // Get profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      
-      setProfile(profileData ?? null);
-      
-      // If operator or admin, get operator data
-      if (profileData?.role === 'operator' || profileData?.role === 'admin') {
-        const { data: operatorData } = await supabase
-          .from('operators')
-          .select('*')
+      // Load profile and operator data in parallel for faster loading
+      const [profileResult, operatorResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, role, created_at, updated_at')
           .eq('id', userId)
-          .maybeSingle();
-        
-        setOperator(operatorData ?? null);
+          .maybeSingle(),
+        supabase
+          .from('operators')
+          .select('id, name, business_name, email, logo_url, brand_color_1, brand_color_2')
+          .eq('id', userId)
+          .maybeSingle()
+      ]);
+      
+      setProfile(profileResult.data ?? null);
+      
+      // Only set operator if profile is operator or admin
+      if (profileResult.data?.role === 'operator' || profileResult.data?.role === 'admin') {
+        setOperator(operatorResult.data ?? null);
       } else {
         setOperator(null);
       }
@@ -73,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
     
-    // Initial session check
+    // Initial session check - optimized for speed
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       
@@ -81,9 +82,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
+        // Load profile asynchronously without blocking
         loadProfile(session.user.id);
       }
       
+      // Set loading to false immediately to show UI faster
       setLoading(false);
     });
 

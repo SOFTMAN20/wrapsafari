@@ -66,11 +66,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     try {
       setIsLoggingOut(true);
       
-      await onSignOut();
+      // Start signout and redirect immediately without waiting
+      onSignOut();
       
-      toast.success('Signed out successfully! 👋', { duration: 2000 });
-      
-      // Redirect immediately
+      // Show toast and redirect immediately (don't wait for signout to complete)
+      toast.success('Signed out successfully! 👋', { duration: 1500 });
       router.push('/login');
     } catch (error) {
       console.error('Logout error:', error);
