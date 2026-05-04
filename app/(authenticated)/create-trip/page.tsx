@@ -281,26 +281,26 @@ export default function CreateTripPage() {
       if (!formData.trip_name.trim()) newErrors.trip_name = 'Event name is required';
       if (!formData.description.trim()) newErrors.description = 'Description is required';
       
-      // Destinations required for safari only
-      if (formData.type === 'safari' && formData.destination_ids.length === 0) {
-        newErrors.destinations = 'At least one destination is required';
-      }
+      // Destinations are now optional for safari events
+      // if (formData.type === 'safari' && formData.destination_ids.length === 0) {
+      //   newErrors.destinations = 'At least one destination is required';
+      // }
       
-      // Tour locations required for tour
-      if (formData.type === 'tour' && formData.tour_locations.length === 0) {
-        newErrors.tour_locations = 'At least one location is required';
-      }
+      // Tour locations are now optional
+      // if (formData.type === 'tour' && formData.tour_locations.length === 0) {
+      //   newErrors.tour_locations = 'At least one location is required';
+      // }
       
-      // Marathon-specific validation
-      if (formData.type === 'marathon') {
-        if (!formData.distance_km) newErrors.distance_km = 'Distance is required for marathon events';
-        if (!formData.route_name) newErrors.route_name = 'Route name is required for marathon events';
-      }
+      // Marathon-specific validation - now optional
+      // if (formData.type === 'marathon') {
+      //   if (!formData.distance_km) newErrors.distance_km = 'Distance is required for marathon events';
+      //   if (!formData.route_name) newErrors.route_name = 'Route name is required for marathon events';
+      // }
       
-      // Tour-specific validation
-      if (formData.type === 'tour') {
-        if (!formData.duration_hours) newErrors.duration_hours = 'Duration is required for tour events';
-      }
+      // Tour-specific validation - now optional
+      // if (formData.type === 'tour') {
+      //   if (!formData.duration_hours) newErrors.duration_hours = 'Duration is required for tour events';
+      // }
     }
     
     if (stepNumber === 2) {
@@ -356,13 +356,14 @@ export default function CreateTripPage() {
       return;
     }
     
-    // Check subscription limits
-    if (!permissions.canCreateEvent.allowed) {
-      setErrors({ 
-        submit: permissions.canCreateEvent.reason || 'You have reached your event limit. Please upgrade your plan to create more events.' 
-      });
-      return;
-    }
+    // Subscription limits temporarily disabled - all operators can create events
+    // TODO: Re-enable subscription limits after payment integration is complete
+    // if (!permissions.canCreateEvent.allowed) {
+    //   setErrors({ 
+    //     submit: permissions.canCreateEvent.reason || 'You have reached your event limit. Please upgrade your plan to create more events.' 
+    //   });
+    //   return;
+    // }
     
     // Use the mutation to create the event
     createEventMutation.mutate(formData);
@@ -413,15 +414,16 @@ export default function CreateTripPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-parchment to-white pb-20">
       <div className="max-w-4xl mx-auto p-3 sm:p-4 md:p-8 space-y-4 sm:space-y-6 md:space-y-8">
-        {/* Paywall Check */}
-        {!subscriptionLoading && !permissions.canCreateEvent.allowed && (
+        {/* Paywall Check - Temporarily disabled */}
+        {/* TODO: Re-enable after payment integration is complete */}
+        {/* {!subscriptionLoading && !permissions.canCreateEvent.allowed && (
           <UpgradePrompt
             title="Event Limit Reached"
             message={permissions.canCreateEvent.reason || "You've reached your event limit. Upgrade to Pro for unlimited events."}
             feature="Unlimited Events"
             variant="banner"
           />
-        )}
+        )} */}
         
         {/* Header */}
         <motion.div
@@ -627,17 +629,18 @@ export default function CreateTripPage() {
                   )}
                 </div>
 
-                {/* Destinations - Only for Safari */}
+                {/* Destinations - Only for Safari (Optional) */}
                 {formData.type === 'safari' && (
                   <div className="space-y-3">
-                    <Label>Destinations *</Label>
+                    <Label>Destinations (Optional)</Label>
+                    <p className="text-xs text-stone">Select safari destinations or leave empty</p>
                   {destinationsLoading ? (
                     <p className="text-sm text-stone">Loading destinations...</p>
                   ) : (
                     <>
                       <Select onValueChange={addDestination}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Add destinations" />
+                          <SelectValue placeholder="Add destinations (optional)" />
                         </SelectTrigger>
                         <SelectContent>
                           {destinations?.map((destination: any) => (

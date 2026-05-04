@@ -157,8 +157,14 @@ export async function createFreeSubscription(operatorId: string): Promise<Subscr
 
 /**
  * Check if operator can create events
+ * TEMPORARILY DISABLED: All operators can create events regardless of subscription
+ * TODO: Re-enable subscription limits after payment integration is complete
  */
 export async function canCreateEvent(operatorId: string): Promise<{ allowed: boolean; reason?: string }> {
+  // Temporarily allow all operators to create events
+  return { allowed: true };
+  
+  /* Original subscription check - commented out for now
   const subscription = await getSubscription(operatorId);
   
   if (!subscription || subscription.status !== 'active') {
@@ -194,12 +200,19 @@ export async function canCreateEvent(operatorId: string): Promise<{ allowed: boo
     allowed,
     reason: allowed ? undefined : `Event limit reached (${eventCount}/${plan.limits.events})`
   };
+  */
 }
 
 /**
  * Check if operator can generate wraps
+ * TEMPORARILY DISABLED: All operators can generate wraps regardless of subscription
+ * TODO: Re-enable subscription limits after payment integration is complete
  */
 export async function canGenerateWrap(operatorId: string): Promise<{ allowed: boolean; reason?: string }> {
+  // Temporarily allow all operators to generate wraps
+  return { allowed: true };
+  
+  /* Original subscription check - commented out for now
   const subscription = await getSubscription(operatorId);
   
   if (!subscription) {
@@ -211,6 +224,7 @@ export async function canGenerateWrap(operatorId: string): Promise<{ allowed: bo
   }
   
   return { allowed: true };
+  */
 }
 
 /**
