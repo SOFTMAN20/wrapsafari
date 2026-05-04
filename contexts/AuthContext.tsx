@@ -122,8 +122,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    console.log('🔐 AuthContext: Starting signOut...');
+    
     try {
       // Clear local state first
+      console.log('🧹 Clearing local state...');
       setUser(null);
       setSession(null);
       setProfile(null);
@@ -131,14 +134,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Clear any cached data in localStorage
       if (typeof window !== 'undefined') {
+        console.log('🗑️ Clearing localStorage and sessionStorage...');
         localStorage.removeItem('supabase.auth.token');
         sessionStorage.clear();
       }
       
       // Then sign out from Supabase
-      await supabase.auth.signOut();
+      console.log('☁️ Signing out from Supabase...');
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('❌ Supabase signOut error:', error);
+        throw error;
+      }
+      
+      console.log('✅ AuthContext: SignOut complete');
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('❌ Error signing out:', error);
       // Even if signout fails, clear local state
       setUser(null);
       setSession(null);
