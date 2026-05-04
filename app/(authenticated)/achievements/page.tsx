@@ -120,19 +120,43 @@ export default function AnalyticsPage() {
     return <AnalyticsSkeleton />;
   }
 
-  if (error || !analytics) {
+  if (error) {
     return <AnalyticsError error={error} />;
   }
 
-  const mockAnalytics = analytics;
+  // Ensure analytics data exists with defaults
+  const safeAnalytics = analytics || {
+    overview: {
+      totalEvents: 0,
+      totalGuests: 0,
+      totalReviews: 0,
+      totalWraps: 0,
+      avgRating: 0,
+      shareRate: 0,
+      conversionRate: 0,
+      repeatGuests: 0,
+    },
+    trends: {
+      events: { current: 0, previous: 0, change: 0 },
+      guests: { current: 0, previous: 0, change: 0 },
+      reviews: { current: 0, previous: 0, change: 0 },
+      rating: { current: 0, previous: 0, change: 0 },
+    },
+    monthlyData: [],
+    topDestinations: [],
+    recentActivity: [],
+    achievements: [],
+  };
+
+  const mockAnalytics = safeAnalytics;
 
   // Handle export report
   const handleExportReport = () => {
-    if (!analytics) return;
+    if (!analytics || !safeAnalytics) return;
 
     try {
       // Create CSV content
-      const csvContent = generateCSVReport(analytics);
+      const csvContent = generateCSVReport(safeAnalytics);
       
       // Create blob and download
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -404,7 +428,7 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {mockAnalytics.topDestinations.map((destination: { name: string; events: number; rating: number; guests: number }, i: number) => (
+                  {(mockAnalytics.topDestinations || []).map((destination: { name: string; events: number; rating: number; guests: number }, i: number) => (
                     <motion.div
                       key={destination.name}
                       initial={{ opacity: 0, x: -20 }}
@@ -460,7 +484,7 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {mockAnalytics.recentActivity.map((activity: any, i: number) => (
+                  {(mockAnalytics.recentActivity || []).map((activity: any, i: number) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, x: 20 }}
@@ -529,7 +553,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {mockAnalytics.achievements.map((achievement: any, i: number) => {
+                {(mockAnalytics.achievements || []).map((achievement: any, i: number) => {
                   const IconComponent = achievement.icon === 'Star' ? Star :
                                        achievement.icon === 'Trophy' ? Trophy :
                                        achievement.icon === 'Zap' ? Zap :
@@ -748,13 +772,13 @@ function generateCSVReport(analytics: any): string {
   // Monthly Data Section
   lines.push('MONTHLY PERFORMANCE (Last 7 Months)');
   lines.push('Month,Events,Guests,Reviews,Wraps');
-  analytics.monthlyData.forEach((month: any) => {
+  (analytics.monthlyData || []).forEach((month: any) => {
     lines.push(`${month.month},${month.events},${month.guests},${month.reviews},${month.wraps}`);
   });
   lines.push('');
   
   // Top Destinations Section
-  if (analytics.topDestinations && analytics.topDestinations.length > 0) {
+  if (analytics.topDestinations && Array.isArray(analytics.topDestinations) && analytics.topDestinations.length > 0) {
     lines.push('TOP DESTINATIONS');
     lines.push('Destination,Events,Rating,Guests');
     analytics.topDestinations.forEach((dest: any) => {
@@ -764,7 +788,7 @@ function generateCSVReport(analytics: any): string {
   }
   
   // Recent Activity Section
-  if (analytics.recentActivity && analytics.recentActivity.length > 0) {
+  if (analytics.recentActivity && Array.isArray(analytics.recentActivity) && analytics.recentActivity.length > 0) {
     lines.push('RECENT ACTIVITY');
     lines.push('Type,Guest/Event,Details,Time');
     analytics.recentActivity.forEach((activity: any) => {
@@ -780,7 +804,7 @@ function generateCSVReport(analytics: any): string {
   }
   
   // Achievements Section
-  if (analytics.achievements && analytics.achievements.length > 0) {
+  if (analytics.achievements && Array.isArray(analytics.achievements) && analytics.achievements.length > 0) {
     lines.push('ACHIEVEMENTS & GOALS');
     lines.push('Achievement,Description,Progress (%),Status');
     analytics.achievements.forEach((achievement: any) => {
