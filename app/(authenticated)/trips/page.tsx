@@ -78,8 +78,18 @@ export default function EventsPage() {
 
   // Fix hydration issue
   useEffect(() => {
+    console.log('🎬 Component mounted');
     setMounted(true);
   }, []);
+
+  // Debug user state
+  useEffect(() => {
+    console.log('👤 User state changed:', { 
+      userId: user?.id, 
+      mounted, 
+      enabled: !!user?.id && mounted 
+    });
+  }, [user?.id, mounted]);
 
   // Check for success message
   useEffect(() => {
@@ -154,7 +164,7 @@ export default function EventsPage() {
       
       return updatedData;
     },
-    enabled: !!user?.id && mounted, // Wait for both user and mounted
+    enabled: !!user?.id, // Only wait for user, not mounted
     staleTime: 5 * 60 * 1000, // Reduced to 5 minutes for fresher data
     gcTime: 15 * 60 * 1000, // 15 minutes
     refetchOnWindowFocus: true, // Refetch when window gains focus
@@ -277,10 +287,13 @@ export default function EventsPage() {
   }) : [];
 
   const stats = {
-    total: Array.isArray(events) ? events.length : 0,
-    upcoming: Array.isArray(events) ? events.filter(e => e.status === 'upcoming').length : 0,
-    completed: Array.isArray(events) ? events.filter(e => e.status === 'completed').length : 0,
+    total: isLoading ? '...' : (Array.isArray(events) ? events.length : 0),
+    upcoming: isLoading ? '...' : (Array.isArray(events) ? events.filter(e => e.status === 'upcoming').length : 0),
+    completed: isLoading ? '...' : (Array.isArray(events) ? events.filter(e => e.status === 'completed').length : 0),
   };
+
+  // Debug stats
+  console.log('📊 Stats:', stats, 'Events:', events?.length, 'Loading:', isLoading, 'Mounted:', mounted);
 
   return (
     <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-parchment min-h-screen">
@@ -345,7 +358,11 @@ export default function EventsPage() {
               <Card>
                 <CardContent className="p-4">
                   <p className="text-sm text-stone font-semibold mb-1">{stat.label}</p>
-                  <p className="text-3xl font-extrabold text-forest">{stat.value}</p>
+                  {isLoading || !mounted ? (
+                    <div className="h-9 w-16 bg-gray-200 animate-pulse rounded" />
+                  ) : (
+                    <p className="text-3xl font-extrabold text-forest">{stat.value}</p>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
