@@ -50,7 +50,7 @@ export default function WrapsPage() {
     setMounted(true);
   }, []);
 
-  // Fetch all wraps for operator's events
+  // Fetch all wraps for operator's events - OPTIMIZED for speed
   const { data: wraps, isLoading } = useQuery({
     queryKey: ['operator-wraps', user?.id, filterType],
     queryFn: async () => {
@@ -70,7 +70,8 @@ export default function WrapsPage() {
         .from('wraps')
         .select('id, guest_name, created_at, event_id, events!inner(title, type)')
         .in('event_id', eventIds)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false})
+        .limit(100); // Limit to 100 most recent wraps for faster loading
 
       // Apply type filter
       if (filterType !== 'all') {
@@ -82,8 +83,8 @@ export default function WrapsPage() {
       return data as Wrap[];
     },
     enabled: !!user?.id && mounted,
-    staleTime: 10 * 60 * 1000, // 10 minutes (increased from 2)
-    gcTime: 15 * 60 * 1000, // 15 minutes
+    staleTime: 15 * 60 * 1000, // 15 minutes (increased from 10)
+    gcTime: 30 * 60 * 1000, // 30 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     placeholderData: (previousData) => previousData,

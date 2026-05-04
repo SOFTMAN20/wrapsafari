@@ -92,12 +92,13 @@ export default function EventsPage() {
     }
   }, [searchParams, router]);
 
-  // Fetch events with QR codes from database
+  // Fetch events with QR codes from database - OPTIMIZED for speed
   const { data: events = [], isLoading, refetch } = useQuery({
     queryKey: ['events', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
       
+      // Select only essential fields for faster loading
       const { data, error } = await supabase
         .from('events')
         .select(`
@@ -108,17 +109,16 @@ export default function EventsPage() {
           end_date,
           status,
           metadata,
-          created_at,
-          qr_codes (
+          qr_codes!inner (
             id,
             short_code,
             code_url,
-            scans_count,
-            unique_scans_count
+            scans_count
           )
         `)
         .eq('operator_id', user.id)
-        .order('start_date', { ascending: false });
+        .order('start_date', { ascending: false })
+        .limit(50); // Limit to 50 most recent events for faster loading
       
       if (error) {
         console.error('Error fetching events:', error);
@@ -128,8 +128,8 @@ export default function EventsPage() {
       return data || [];
     },
     enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
-    gcTime: 15 * 60 * 1000, // 15 minutes
+    staleTime: 15 * 60 * 1000, // Cache for 15 minutes (increased from 10)
+    gcTime: 30 * 60 * 1000, // 30 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     placeholderData: (previousData) => previousData, // Keep showing old data while refetching
