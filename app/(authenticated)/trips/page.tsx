@@ -98,6 +98,8 @@ export default function EventsPage() {
     queryFn: async () => {
       if (!user?.id) return [];
       
+      console.log('📥 Fetching events for user:', user.id);
+      
       // Select only essential fields for faster loading
       const { data, error } = await supabase
         .from('events')
@@ -125,13 +127,14 @@ export default function EventsPage() {
         throw error;
       }
       
+      console.log('✅ Events fetched:', data?.length || 0);
       return data || [];
     },
-    enabled: !!user?.id,
-    staleTime: 15 * 60 * 1000, // Cache for 15 minutes (increased from 10)
+    enabled: !!user?.id && mounted, // Wait for both user and mounted
+    staleTime: 15 * 60 * 1000, // Cache for 15 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always', // Always refetch on mount to show fresh data
     placeholderData: (previousData) => previousData, // Keep showing old data while refetching
   });
 

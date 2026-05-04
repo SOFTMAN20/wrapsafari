@@ -178,17 +178,17 @@ export default function DashboardPage() {
         }
       };
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && mounted,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always', // Always refetch on mount
     placeholderData: (previousData) => previousData, // Keep showing old data while refetching
   });
 
   // Optimized upcoming events query
   const { data: upcomingEvents, isLoading: eventsLoading } = useQuery({
-    queryKey: queryKeys.upcomingEvents(user?.id || ''),
+    queryKeys.upcomingEvents(user?.id || ''),
     queryFn: async () => {
       if (!user?.id) return [];
 
@@ -203,11 +203,11 @@ export default function DashboardPage() {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && mounted,
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always', // Always refetch on mount
     placeholderData: (previousData) => previousData,
   });
 
@@ -274,11 +274,11 @@ export default function DashboardPage() {
 
       return activities;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && mounted,
     staleTime: 1 * 60 * 1000, // 1 minute for activity
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always', // Always refetch on mount
     placeholderData: (previousData) => previousData,
   });
 

@@ -56,6 +56,8 @@ export default function WrapsPage() {
     queryFn: async () => {
       if (!user?.id) return [];
 
+      console.log('📥 Fetching wraps for user:', user.id);
+
       // Get operator's event IDs (only IDs needed)
       const { data: events } = await supabase
         .from('events')
@@ -63,7 +65,10 @@ export default function WrapsPage() {
         .eq('operator_id', user.id);
 
       const eventIds = events?.map(e => e.id) || [];
-      if (eventIds.length === 0) return [];
+      if (eventIds.length === 0) {
+        console.log('⚠️ No events found for operator');
+        return [];
+      }
 
       // Build query with specific fields only
       let query = supabase
@@ -80,13 +85,15 @@ export default function WrapsPage() {
 
       const { data, error } = await query;
       if (error) throw error;
+      
+      console.log('✅ Wraps fetched:', data?.length || 0);
       return data as Wrap[];
     },
-    enabled: !!user?.id && mounted,
-    staleTime: 15 * 60 * 1000, // 15 minutes (increased from 10)
+    enabled: !!user?.id && mounted, // Wait for both user and mounted
+    staleTime: 15 * 60 * 1000, // 15 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always', // Always refetch on mount to show fresh data
     placeholderData: (previousData) => previousData,
   });
 
