@@ -103,7 +103,7 @@ export default function EventsPage() {
   }, [searchParams, router]);
 
   // Fetch events with QR codes from database - OPTIMIZED for speed
-  const { data: events = [], isLoading, refetch, error } = useQuery({
+  const { data: events = [], isLoading, isFetching, refetch, error } = useQuery({
     queryKey: ['events', user?.id],
     queryFn: async () => {
       if (!user?.id) {
@@ -168,9 +168,10 @@ export default function EventsPage() {
     staleTime: 5 * 60 * 1000, // Reduced to 5 minutes for fresher data
     gcTime: 15 * 60 * 1000, // 15 minutes
     refetchOnWindowFocus: true, // Refetch when window gains focus
-    refetchOnMount: true, // Always refetch on mount
+    refetchOnMount: 'always', // Always refetch on mount (string value like dashboard)
     retry: 3, // Retry failed requests
     retryDelay: 1000, // Wait 1s between retries
+    placeholderData: (previousData) => previousData, // Keep showing old data while refetching
   });
 
   const handleShowQR = async (event: any) => {
@@ -276,7 +277,17 @@ export default function EventsPage() {
     img.src = url;
   };
 
-  const filteredEvents = Array.isArray(events) ? events.filter(event => {
+  // Calculate stats with proper loading state check
+  const isLoadingData = isLoading || isFetching || !mounted;
+  const safeEvents = Array.isArray(events) ? events : [];
+  
+  const stats = {
+    total: isLoadingData ? '...' : safeEvents.length,
+    upcoming: isLoadingData ? '...' : safeEvents.filter(e => e.status === 'upcoming').length,
+    completed: isLoadingData ? '...' : safeEvents.filter(e => e.status === 'completed').length,
+  };
+
+  const filteredEvents = safeEvents.filter(event => {
     const destinationNames = event.metadata?.destination_names || [];
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          destinationNames.some((dest: string) => 
@@ -284,16 +295,10 @@ export default function EventsPage() {
                          );
     const matchesStatus = statusFilter === 'all' || event.status === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
-  }) : [];
-
-  const stats = {
-    total: isLoading ? '...' : (Array.isArray(events) ? events.length : 0),
-    upcoming: isLoading ? '...' : (Array.isArray(events) ? events.filter(e => e.status === 'upcoming').length : 0),
-    completed: isLoading ? '...' : (Array.isArray(events) ? events.filter(e => e.status === 'completed').length : 0),
-  };
+  });
 
   // Debug stats
-  console.log('📊 Stats:', stats, 'Events:', events?.length, 'Loading:', isLoading, 'Mounted:', mounted);
+  console.log('📊 Stats:', stats, 'Events:', safeEvents.length, 'Loading:', isLoading, 'Fetching:', isFetching, 'Mounted:', mounted);
 
   return (
     <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-parchment min-h-screen">
@@ -358,7 +363,7 @@ export default function EventsPage() {
               <Card>
                 <CardContent className="p-4">
                   <p className="text-sm text-stone font-semibold mb-1">{stat.label}</p>
-                  {isLoading || !mounted ? (
+                  {isLoadingData ? (
                     <div className="h-9 w-16 bg-gray-200 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-extrabold text-forest">{stat.value}</p>
@@ -423,7 +428,7 @@ export default function EventsPage() {
       </Card>
 
       {/* Events Grid/List */}
-      {!mounted || isLoading ? (
+      {!mounted || isLoadingData ? (
         <div className="text-center py-12">
           <motion.div
             animate={{ rotate: 360 }}
@@ -433,7 +438,6 @@ export default function EventsPage() {
             <Map className="w-8 h-8 text-forest" />
           </motion.div>
           <p className="mt-4 text-stone">Loading events...</p>
-          {user?.id && <p className="text-xs text-stone mt-2">User ID: {user.id.slice(0, 8)}...</p>}
         </div>
       ) : error ? (
         <Card>

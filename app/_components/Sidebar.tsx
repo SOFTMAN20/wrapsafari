@@ -72,12 +72,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       // Start signout but don't wait for it
       onSignOut().catch(err => console.error('Background signout error:', err));
       
-      console.log('✅ Redirecting immediately...');
+      console.log('✅ Redirecting to login page...');
       
       // Show toast
       toast.success('Signed out successfully! 👋', { duration: 1500 });
       
-      // Redirect immediately without waiting
+      // Redirect immediately to login page
       window.location.href = '/login';
     } catch (error) {
       console.error('❌ Logout error:', error);
