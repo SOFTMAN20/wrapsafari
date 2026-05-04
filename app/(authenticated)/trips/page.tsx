@@ -111,7 +111,7 @@ export default function EventsPage() {
           end_date,
           status,
           metadata,
-          qr_codes!inner (
+          qr_codes (
             id,
             short_code,
             code_url,
@@ -128,6 +128,7 @@ export default function EventsPage() {
       }
       
       console.log('✅ Events fetched:', data?.length || 0);
+      console.log('📊 Events data:', data);
       return data || [];
     },
     enabled: !!user?.id && mounted, // Wait for both user and mounted
