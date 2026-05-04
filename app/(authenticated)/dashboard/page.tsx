@@ -188,7 +188,7 @@ export default function DashboardPage() {
 
   // Optimized upcoming events query
   const { data: upcomingEvents, isLoading: eventsLoading } = useQuery({
-    queryKeys.upcomingEvents(user?.id || ''),
+    queryKey: queryKeys.upcomingEvents(user?.id || ''),
     queryFn: async () => {
       if (!user?.id) return [];
 
