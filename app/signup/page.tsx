@@ -118,10 +118,8 @@ export default function SignupPage() {
       // Show success message
       toast.success('Account created successfully! Welcome to SafariWrap 🎉');
       
-      // Redirect to dashboard after successful signup
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 500);
+      // Redirect to dashboard immediately (no delay)
+      router.push('/dashboard');
     } catch (err: any) {
       // Handle specific error messages
       const errorMessage = err.message || 'Failed to create account.';

@@ -47,10 +47,8 @@ export default function LoginPage() {
       // Show success message
       toast.success('Welcome back! 👋');
       
-      // Redirect to dashboard
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 500);
+      // Redirect to dashboard immediately (no delay)
+      router.push('/dashboard');
     } catch (err: any) {
       console.error('Login error:', err);
       

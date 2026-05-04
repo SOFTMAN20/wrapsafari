@@ -66,60 +66,51 @@ export const authApi = {
     console.log('✅ Session created, proceeding with operator setup...');
 
     // Session exists - trigger has already created profile, operator, and subscription
-    // Wait a moment for trigger to complete
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Reduced wait time for faster signup (trigger is fast enough)
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     let logoUrl: string | null = null;
 
-    // 2. Upload logo if provided
+    // 2. Upload logo if provided (async, don't wait for completion)
     if (logoFile) {
       console.log('📤 Uploading logo...');
       const ext = logoFile.name.split('.').pop();
       const path = `logos/${authData.user.id}_${Date.now()}.${ext}`;
 
-      const { error: uploadError } = await supabase.storage
+      // Upload logo in background without blocking signup
+      supabase.storage
         .from('safariwrap-assets')
-        .upload(path, logoFile);
+        .upload(path, logoFile)
+        .then(({ error: uploadError }) => {
+          if (!uploadError) {
+            const { data: urlData } = supabase.storage
+              .from('safariwrap-assets')
+              .getPublicUrl(path);
+            
+            logoUrl = urlData.publicUrl;
+            console.log('✅ Logo uploaded:', logoUrl);
 
-      if (!uploadError) {
-        const { data: urlData } = supabase.storage
-          .from('safariwrap-assets')
-          .getPublicUrl(path);
-        
-        logoUrl = urlData.publicUrl;
-        console.log('✅ Logo uploaded:', logoUrl);
-      } else {
-        console.error('❌ Logo upload error:', uploadError);
-      }
+            // Update operator with logo URL in background
+            supabase
+              .from('operators')
+              .update({ logo_url: logoUrl })
+              .eq('id', authData.user.id)
+              .then(({ error: logoUpdateError }) => {
+                if (logoUpdateError) {
+                  console.error('❌ Error updating operator logo:', logoUpdateError);
+                } else {
+                  console.log('✅ Operator logo updated successfully');
+                }
+              });
+          } else {
+            console.error('❌ Logo upload error:', uploadError);
+          }
+        });
     }
 
-    // 3. Update operator record with logo if uploaded
-    if (logoUrl) {
-      console.log('💾 Updating operator with logo URL...');
-      const { error: logoUpdateError } = await supabase
-        .from('operators')
-        .update({ logo_url: logoUrl })
-        .eq('id', authData.user.id);
-
-      if (logoUpdateError) {
-        console.error('❌ Error updating operator logo:', logoUpdateError);
-      } else {
-        console.log('✅ Operator logo updated successfully');
-      }
-    }
-
-    // Verify the operator record
-    const { data: operatorData, error: fetchError } = await supabase
-      .from('operators')
-      .select('*')
-      .eq('id', authData.user.id)
-      .single();
-
-    if (fetchError) {
-      console.error('❌ Error fetching operator data:', fetchError);
-    } else {
-      console.log('✅ Final operator data:', operatorData);
-    }
+    // Skip operator verification - let the dashboard load it
+    // This makes signup instant
+    console.log('✅ Signup complete! Redirecting to dashboard...');
 
     return authData;
   },
