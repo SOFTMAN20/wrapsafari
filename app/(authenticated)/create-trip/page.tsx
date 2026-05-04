@@ -1146,51 +1146,6 @@ export default function CreateTripPage() {
                     )}
                   </div>
                 </div>
-
-                <Separator />
-
-                <div className="space-y-3">
-                  <Label>What's Included</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="e.g., All meals, Transportation"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addInclude(e.currentTarget.value);
-                          e.currentTarget.value = '';
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={(e) => {
-                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                        addInclude(input.value);
-                        input.value = '';
-                      }}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  
-                  {formData.includes.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {formData.includes.map((item, index) => (
-                        <Badge key={index} variant="secondary" className="gap-1">
-                          {item}
-                          <button
-                            onClick={() => removeInclude(item)}
-                            className="ml-1 hover:text-red-600"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
               </CardContent>
             </Card>
           )}
@@ -1447,22 +1402,6 @@ export default function CreateTripPage() {
                     </div>
                   </div>
                 </div>
-
-                {formData.includes.length > 0 && (
-                  <>
-                    <Separator />
-                    <div>
-                      <h4 className="font-bold text-forest mb-3">What's Included</h4>
-                      <div className="flex flex-wrap gap-2 pl-6">
-                        {formData.includes.map((item, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            ✓ {item}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
 
                 {errors.submit && (
                   <div className="p-4 rounded-xl bg-red-50 border border-red-200">

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { WrapData } from '@/lib/wrap-engine';
+import { useState } from 'react';
 
 interface ImpactSlideProps {
   wrapData: WrapData;
@@ -9,6 +10,9 @@ interface ImpactSlideProps {
 
 export default function ImpactSlide({ wrapData }: ImpactSlideProps) {
   const { trees_planted, co2_offset_kg } = wrapData.environmental_impact;
+  
+  // Generate certificate number once on client side to avoid hydration mismatch
+  const [certNumber] = useState(() => Math.floor(Math.random() * 900000) + 100000);
 
   return (
     <div className="w-full bg-parchment py-12 px-6">
@@ -38,7 +42,7 @@ export default function ImpactSlide({ wrapData }: ImpactSlideProps) {
           {/* Certificate Number */}
           <div className="text-center mb-6">
             <p className="text-xs text-gray-500 uppercase tracking-wider mb-4">
-              IMPACT VERIFIED CERT. #{Math.floor(Math.random() * 900000) + 100000}
+              IMPACT VERIFIED CERT. #{certNumber}
             </p>
             
             {/* GPS Location */}

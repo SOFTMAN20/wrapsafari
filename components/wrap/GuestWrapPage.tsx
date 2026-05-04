@@ -15,6 +15,9 @@ export default function GuestWrapPage({ wrapData }: GuestWrapPageProps) {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [showImagePreview, setShowImagePreview] = useState(false);
+  
+  // Generate certificate number once on client side to avoid hydration mismatch
+  const [certNumber] = useState(() => Math.floor(Math.random() * 900000) + 100000);
 
   // Transform wrap data
   const transformedData = {
@@ -104,15 +107,11 @@ export default function GuestWrapPage({ wrapData }: GuestWrapPageProps) {
     
     try {
       // Capture the wrap content as PNG using modern-screenshot
+      // Use actual container width and height (no fixed dimensions)
       const dataUrl = await domToPng(wrapRef.current, {
         scale: 2,
         quality: 1,
-        backgroundColor: '#FCFAF5',
-        width: 1200,
-        style: {
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }
+        backgroundColor: '#FCFAF5'
       });
       
       // Convert data URL to blob
@@ -435,15 +434,11 @@ export default function GuestWrapPage({ wrapData }: GuestWrapPageProps) {
     
     try {
       // Capture the wrap content as PNG using modern-screenshot
+      // Use actual container width and height (no fixed dimensions)
       const dataUrl = await domToPng(wrapRef.current, {
         scale: 2, // Higher quality (2x)
         quality: 1, // Maximum quality
-        backgroundColor: '#FCFAF5', // Parchment background
-        width: 1200, // Fixed width for consistency
-        style: {
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }
+        backgroundColor: '#FCFAF5' // Parchment background
       });
       
       // Show preview
@@ -465,15 +460,11 @@ export default function GuestWrapPage({ wrapData }: GuestWrapPageProps) {
     
     try {
       // Capture the wrap content as PNG using modern-screenshot
+      // Use actual container width and height (no fixed dimensions)
       const dataUrl = await domToPng(wrapRef.current, {
         scale: 2, // Higher quality (2x)
         quality: 1, // Maximum quality
-        backgroundColor: '#FCFAF5', // Parchment background
-        width: 1200, // Fixed width for consistency
-        style: {
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }
+        backgroundColor: '#FCFAF5' // Parchment background
       });
       
       // Show preview
@@ -922,7 +913,7 @@ export default function GuestWrapPage({ wrapData }: GuestWrapPageProps) {
                         </span>
                       </div>
                       <p className="text-[9px] sm:text-[10px] text-gray-400 uppercase tracking-widest font-bold">
-                        CERT. #{Math.floor(Math.random() * 900000) + 100000}
+                        CERT. #{certNumber}
                       </p>
                     </div>
 
