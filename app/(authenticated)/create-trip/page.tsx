@@ -184,7 +184,7 @@ export default function CreateTripPage() {
             description: eventData.description || '',
             max_guests: parseInt(eventData.max_guests) || 10,
             difficulty_level: eventData.difficulty_level || 'moderate',
-            price_per_person: parseFloat(eventData.price_per_person) || 0,
+            price_per_person: 0, // Price removed from form
             duration_days: parseInt(eventData.duration_days) || 1,
             includes: eventData.includes || [],
             excludes: eventData.excludes || [],
@@ -313,7 +313,6 @@ export default function CreateTripPage() {
     
     if (stepNumber === 3) {
       if (!formData.max_guests || formData.max_guests < 1) newErrors.max_guests = 'Maximum guests is required';
-      if (!formData.price_per_person || parseFloat(formData.price_per_person) <= 0) newErrors.price_per_person = 'Price per person is required';
     }
     
     setErrors(newErrors);
@@ -1146,29 +1145,6 @@ export default function CreateTripPage() {
                       </p>
                     )}
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Price per Person (TZS) *</Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-stone">TZS</span>
-                      <Input
-                        id="price"
-                        type="number"
-                        min="0"
-                        step="1"
-                        value={formData.price_per_person}
-                        onChange={(e) => setFormData({ ...formData, price_per_person: e.target.value })}
-                        className={`pl-12 ${errors.price_per_person ? 'border-red-500' : ''}`}
-                        placeholder="150000"
-                      />
-                    </div>
-                    {errors.price_per_person && (
-                      <p className="text-sm text-red-600 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.price_per_person}
-                      </p>
-                    )}
-                  </div>
                 </div>
 
                 <Separator />
@@ -1458,20 +1434,16 @@ export default function CreateTripPage() {
 
                 <Separator />
 
-                {/* Capacity & Pricing */}
+                {/* Capacity */}
                 <div>
                   <h4 className="font-bold text-forest mb-3 flex items-center gap-2">
                     <Users className="w-4 h-4" />
-                    Capacity & Pricing
+                    Capacity
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
+                  <div className="pl-6">
                     <div>
                       <p className="text-xs text-stone uppercase mb-1">Maximum Guests</p>
                       <p className="text-sm text-ink">{formData.max_guests} people</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-stone uppercase mb-1">Price per Person</p>
-                      <p className="text-sm font-bold text-forest">TZS {Number(formData.price_per_person).toLocaleString('sw-TZ')}</p>
                     </div>
                   </div>
                 </div>
