@@ -93,10 +93,13 @@ export default function EventsPage() {
   }, [searchParams, router]);
 
   // Fetch events with QR codes from database - OPTIMIZED for speed
-  const { data: events = [], isLoading, refetch } = useQuery({
+  const { data: events = [], isLoading, refetch, error } = useQuery({
     queryKey: ['events', user?.id],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id) {
+        console.log('⚠️ No user ID, skipping fetch');
+        return [];
+      }
       
       console.log('📥 Fetching events for user:', user.id);
       
@@ -123,20 +126,41 @@ export default function EventsPage() {
         .limit(50); // Limit to 50 most recent events for faster loading
       
       if (error) {
-        console.error('Error fetching events:', error);
+        console.error('❌ Error fetching events:', error);
         throw error;
       }
       
       console.log('✅ Events fetched:', data?.length || 0);
       console.log('📊 Events data:', data);
-      return data || [];
+      
+      // Auto-update status for past events
+      const now = new Date();
+      const updatedData = data?.map(event => {
+        const endDate = new Date(event.end_date);
+        // If event has ended and status is still 'upcoming', mark as completed
+        if (endDate < now && event.status === 'upcoming') {
+          console.log(`🔄 Auto-updating event ${event.id} to completed`);
+          // Update in background
+          supabase
+            .from('events')
+            .update({ status: 'completed' })
+            .eq('id', event.id)
+            .then(() => console.log(`✅ Event ${event.id} updated to completed`));
+          
+          return { ...event, status: 'completed' };
+        }
+        return event;
+      }) || [];
+      
+      return updatedData;
     },
     enabled: !!user?.id && mounted, // Wait for both user and mounted
-    staleTime: 15 * 60 * 1000, // Cache for 15 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: 'always', // Always refetch on mount to show fresh data
-    placeholderData: (previousData) => previousData, // Keep showing old data while refetching
+    staleTime: 5 * 60 * 1000, // Reduced to 5 minutes for fresher data
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnMount: true, // Always refetch on mount
+    retry: 3, // Retry failed requests
+    retryDelay: 1000, // Wait 1s between retries
   });
 
   const handleShowQR = async (event: any) => {
@@ -392,7 +416,21 @@ export default function EventsPage() {
             <Map className="w-8 h-8 text-forest" />
           </motion.div>
           <p className="mt-4 text-stone">Loading events...</p>
+          {user?.id && <p className="text-xs text-stone mt-2">User ID: {user.id.slice(0, 8)}...</p>}
         </div>
+      ) : error ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <Map className="w-8 h-8 text-red-500" />
+            </div>
+            <h3 className="text-xl font-bold text-ink mb-2">Error loading events</h3>
+            <p className="text-stone mb-4">{error instanceof Error ? error.message : 'Unknown error'}</p>
+            <Button onClick={() => refetch()} className="bg-forest hover:bg-forest-light text-white">
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
       ) : filteredEvents.length > 0 ? (
         <div className={viewMode === 'grid' 
           ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
