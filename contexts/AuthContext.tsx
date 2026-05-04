@@ -124,40 +124,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     console.log('🔐 AuthContext: Starting signOut...');
     
-    try {
-      // Clear local state first
-      console.log('🧹 Clearing local state...');
-      setUser(null);
-      setSession(null);
-      setProfile(null);
-      setOperator(null);
-      
-      // Clear any cached data in localStorage
-      if (typeof window !== 'undefined') {
-        console.log('🗑️ Clearing localStorage and sessionStorage...');
-        localStorage.removeItem('supabase.auth.token');
+    // Clear local state first (synchronous)
+    console.log('🧹 Clearing local state...');
+    setUser(null);
+    setSession(null);
+    setProfile(null);
+    setOperator(null);
+    
+    // Clear any cached data in localStorage (synchronous)
+    if (typeof window !== 'undefined') {
+      console.log('🗑️ Clearing localStorage and sessionStorage...');
+      try {
+        localStorage.clear();
         sessionStorage.clear();
+      } catch (e) {
+        console.error('Error clearing storage:', e);
       }
-      
-      // Then sign out from Supabase
-      console.log('☁️ Signing out from Supabase...');
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error('❌ Supabase signOut error:', error);
-        throw error;
-      }
-      
-      console.log('✅ AuthContext: SignOut complete');
-    } catch (error) {
-      console.error('❌ Error signing out:', error);
-      // Even if signout fails, clear local state
-      setUser(null);
-      setSession(null);
-      setProfile(null);
-      setOperator(null);
-      throw error;
     }
+    
+    // Sign out from Supabase in background (don't block)
+    console.log('☁️ Signing out from Supabase (background)...');
+    supabase.auth.signOut().then(() => {
+      console.log('✅ Supabase signOut complete');
+    }).catch((error) => {
+      console.error('❌ Supabase signOut error:', error);
+    });
+    
+    console.log('✅ AuthContext: Local signOut complete');
   };
 
   return (
