@@ -41,22 +41,22 @@ const queryKeys = {
   recentActivity: (userId: string) => [...queryKeys.dashboard, 'activity', userId] as const,
 };
 
-// Animation presets for consistent performance
+// Animation presets for consistent performance - ULTRA FAST
 const animationPresets = {
   fadeIn: {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
-    transition: { duration: 0.2 },
+    transition: { duration: 0.15 }, // Faster
   },
   slideUp: {
     initial: { y: 20, opacity: 0 },
     animate: { y: 0, opacity: 1 },
-    transition: { duration: 0.3, ease: "easeOut" },
+    transition: { duration: 0.2, ease: "easeOut" }, // Faster
   },
   staggerChildren: {
     animate: {
       transition: {
-        staggerChildren: 0.05,
+        staggerChildren: 0.03, // Faster stagger
       },
     },
   },
@@ -109,7 +109,7 @@ export default function DashboardPage() {
           .from('events')
           .select('id')
           .eq('operator_id', user.id)
-          .limit(100), // Limit to prevent slow queries
+          .limit(50), // Reduced from 100 for speed
       ]);
       
       const eventIds = allEvents?.map((e: any) => e.id) || [];
@@ -143,7 +143,7 @@ export default function DashboardPage() {
           .from('reviews')
           .select('star_rating')
           .in('event_id', eventIds)
-          .limit(1000), // Limit to prevent slow queries
+          .limit(500), // Reduced from 1000 for speed
         supabase
           .from('wraps')
           .select('id', { count: 'exact', head: true })
@@ -188,11 +188,13 @@ export default function DashboardPage() {
       return result;
     },
     enabled: !!user?.id && mounted,
-    staleTime: 5 * 60 * 1000, // 5 minutes - cache for 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchOnWindowFocus: false, // Don't refetch on window focus
-    refetchOnMount: false, // Don't refetch on every mount (use cache)
-    placeholderData: (previousData) => previousData, // Keep showing old data while refetching
+    staleTime: 10 * 60 * 1000, // 10 minutes - longer cache for speed
+    gcTime: 20 * 60 * 1000, // 20 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: 0, // No retries for speed
+    placeholderData: (previousData) => previousData,
   });
 
   // Optimized upcoming events query
@@ -218,10 +220,12 @@ export default function DashboardPage() {
       return data || [];
     },
     enabled: !!user?.id && mounted,
-    staleTime: 10 * 60 * 1000, // 10 minutes - cache longer
-    gcTime: 15 * 60 * 1000, // 15 minutes
+    staleTime: 15 * 60 * 1000, // 15 minutes - very long cache
+    gcTime: 30 * 60 * 1000, // 30 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Use cache on mount
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: 0,
     placeholderData: (previousData) => previousData,
   });
 
@@ -240,7 +244,7 @@ export default function DashboardPage() {
         .select('id')
         .eq('operator_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(20); // Only check recent 20 events
+        .limit(10); // Reduced from 20 for speed
       
       const eventIds = userEvents?.map((e: any) => e.id) || [];
       
@@ -259,13 +263,13 @@ export default function DashboardPage() {
           .select('id, guest_name, star_rating, created_at, event_id, events!inner(title)')
           .in('event_id', eventIds)
           .order('created_at', { ascending: false })
-          .limit(5),
+          .limit(3), // Reduced from 5 for speed
         supabase
           .from('wraps')
           .select('id, guest_name, created_at, event_id, events!inner(title)')
           .in('event_id', eventIds)
           .order('created_at', { ascending: false })
-          .limit(5)
+          .limit(3) // Reduced from 5 for speed
       ]);
 
       // Combine and sort activities
@@ -292,16 +296,18 @@ export default function DashboardPage() {
         })),
       ]
       .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, 4);
+      .slice(0, 3); // Reduced from 4 for speed
 
       console.log(`✅ Recent activity loaded in ${Date.now() - startTime}ms`);
       return activities;
     },
     enabled: !!user?.id && mounted,
-    staleTime: 2 * 60 * 1000, // 2 minutes for activity (increased from 1)
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Use cache on mount
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: 0,
     placeholderData: (previousData) => previousData,
   });
 
@@ -406,7 +412,7 @@ export default function DashboardPage() {
               change: `${mockStats.avgRating} avg rating`,
               icon: MessageSquare,
               color: 'from-blue-500 to-blue-600',
-              delay: 0.05,
+              delay: 0.03,
             },
             {
               label: 'Wraps Created',
@@ -414,7 +420,7 @@ export default function DashboardPage() {
               change: `${mockStats.shareRate}% share rate`,
               icon: Camera,
               color: 'from-savanna to-savanna-dark',
-              delay: 0.1,
+              delay: 0.06,
             },
             {
               label: 'Active Events',
@@ -422,7 +428,7 @@ export default function DashboardPage() {
               change: 'In progress',
               icon: TrendingUp,
               color: 'from-green-500 to-green-600',
-              delay: 0.15,
+              delay: 0.09,
             },
           ].map((stat, i) => (
             <motion.div
@@ -480,7 +486,7 @@ export default function DashboardPage() {
                       key={activity.id}
                       initial={mounted ? { opacity: 0, x: -20 } : false}
                       animate={mounted ? { opacity: 1, x: 0 } : false}
-                      transition={mounted ? { delay: i * 0.1 } : undefined}
+                      transition={mounted ? { delay: i * 0.05 } : undefined}
                       className="flex items-start gap-4 p-4 rounded-lg hover:bg-parchment-dark transition-colors"
                     >
                       <div className={`w-10 h-10 rounded-full bg-${activity.color}/10 flex items-center justify-center flex-shrink-0`}>
@@ -624,7 +630,7 @@ export default function DashboardPage() {
                   key={event.id}
                   initial={mounted ? { opacity: 0, y: 20 } : false}
                   animate={mounted ? { opacity: 1, y: 0 } : false}
-                  transition={mounted ? { delay: i * 0.1 } : undefined}
+                  transition={mounted ? { delay: i * 0.05 } : undefined}
                 >
                   <Card className="hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer" onClick={() => handleViewEvent(event.id)}>
                     <CardContent className="p-4">
