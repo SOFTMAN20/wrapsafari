@@ -70,18 +70,25 @@ export default function CreateTripPage() {
   const { data: destinations, isLoading: destinationsLoading, error: destinationsError } = useQuery({
     queryKey: queryKeys.destinations,
     queryFn: async () => {
-      console.log('🔍 Fetching destinations...');
-      const { data, error } = await supabase
-        .from('destinations')
-        .select('id, name, country, emoji')
-        .order('name');
+      console.log('🔍 Fetching destinations via API...');
       
-      if (error) {
-        console.error('❌ Destinations fetch error:', error);
-        throw error;
+      try {
+        // Use API route instead of direct Supabase call to avoid RLS issues
+        const response = await fetch('/api/destinations');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        console.log('✅ Destinations fetched:', data?.length || 0);
+        console.log('📋 Destinations:', data);
+        return data || [];
+      } catch (err) {
+        console.error('💥 Exception in destinations fetch:', err);
+        throw err;
       }
-      console.log('✅ Destinations fetched:', data?.length || 0);
-      return data || [];
     },
     enabled: mounted, // Only fetch when component is mounted
     staleTime: 10 * 60 * 1000, // 10 minutes
@@ -90,6 +97,18 @@ export default function CreateTripPage() {
     refetchOnMount: false, // Don't refetch on every mount
     refetchOnWindowFocus: false, // Don't refetch on window focus
   });
+
+  // Debug destinations query state
+  useEffect(() => {
+    console.log('🔄 Destinations query state:', {
+      isLoading: destinationsLoading,
+      hasError: !!destinationsError,
+      error: destinationsError,
+      hasData: !!destinations,
+      dataLength: destinations?.length,
+      mounted,
+    });
+  }, [destinationsLoading, destinationsError, destinations, mounted]);
   
   const [formData, setFormData] = useState({
     // Event Type
@@ -176,6 +195,9 @@ export default function CreateTripPage() {
   // Optimized create event mutation
   const createEventMutation = useMutation({
     mutationFn: async (eventData: any) => {
+      console.log('🚀 Creating event...');
+      const startTime = Date.now();
+      
       const { data, error } = await supabase
         .from('events')
         .insert([{
@@ -234,7 +256,11 @@ export default function CreateTripPage() {
         .select()
         .single();
       
+      const endTime = Date.now();
+      console.log(`✅ Event created in ${endTime - startTime}ms`);
+      
       if (error) {
+        console.error('❌ Create event error:', error);
         throw new Error(error.message || 'Failed to create event');
       }
       
@@ -245,16 +271,20 @@ export default function CreateTripPage() {
       return data;
     },
     onSuccess: (newEvent) => {
-      // Invalidate queries to refetch fresh data
-      queryClient.invalidateQueries({ queryKey: ['events', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['upcoming-events', user?.id] });
+      console.log('🎉 Event created successfully:', newEvent.id);
       
-      // Navigate with success message
+      // Navigate immediately without waiting for invalidations
       router.push('/trips?success=created');
+      
+      // Invalidate queries in background (non-blocking)
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['events', user?.id] });
+        queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id] });
+        queryClient.invalidateQueries({ queryKey: ['upcoming-events', user?.id] });
+      }, 100);
     },
     onError: (error: any) => {
-      console.error('Failed to create event:', error);
+      console.error('❌ Failed to create event:', error);
       setErrors({ submit: error.message || 'Failed to create event' });
     },
   });

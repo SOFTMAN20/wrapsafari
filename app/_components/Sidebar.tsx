@@ -68,17 +68,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
     try {
       setIsLoggingOut(true);
       
-      console.log('🔄 Calling onSignOut (non-blocking)...');
-      // Start signout but don't wait for it
+      // Redirect IMMEDIATELY (before anything else)
+      console.log('⚡ Redirecting to login page immediately...');
+      window.location.href = '/login';
+      
+      // Everything else happens in background (user won't see this)
+      console.log('🔄 Calling onSignOut (background)...');
       onSignOut().catch(err => console.error('Background signout error:', err));
       
-      console.log('✅ Redirecting to login page...');
-      
-      // Show toast
-      toast.success('Signed out successfully! 👋', { duration: 1500 });
-      
-      // Redirect immediately to login page
-      window.location.href = '/login';
+      // Toast won't show because we already redirected, but keep it for safety
+      toast.success('Signed out successfully! 👋', { duration: 1000 });
     } catch (error) {
       console.error('❌ Logout error:', error);
       toast.error('Failed to sign out. Please try again.');

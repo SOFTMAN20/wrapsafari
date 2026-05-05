@@ -87,6 +87,9 @@ export default function DashboardPage() {
     queryFn: async () => {
       if (!user?.id) return null;
 
+      console.log('📊 Fetching dashboard stats...');
+      const startTime = Date.now();
+
       // Single optimized query to get all stats
       const [
         { count: totalEvents },
@@ -105,12 +108,14 @@ export default function DashboardPage() {
         supabase
           .from('events')
           .select('id')
-          .eq('operator_id', user.id),
+          .eq('operator_id', user.id)
+          .limit(100), // Limit to prevent slow queries
       ]);
       
       const eventIds = allEvents?.map((e: any) => e.id) || [];
       
       if (eventIds.length === 0) {
+        console.log(`✅ Dashboard stats loaded in ${Date.now() - startTime}ms (no events)`);
         return {
           totalEvents: totalEvents || 0,
           activeEvents: activeEvents || 0,
@@ -137,7 +142,8 @@ export default function DashboardPage() {
         supabase
           .from('reviews')
           .select('star_rating')
-          .in('event_id', eventIds),
+          .in('event_id', eventIds)
+          .limit(1000), // Limit to prevent slow queries
         supabase
           .from('wraps')
           .select('id', { count: 'exact', head: true })
@@ -164,7 +170,7 @@ export default function DashboardPage() {
         ? (reviews.reduce((sum: number, r: any) => sum + r.star_rating, 0) / reviews.length)
         : 0;
 
-      return {
+      const result = {
         totalEvents: totalEvents || 0,
         activeEvents: activeEvents || 0,
         totalReviews,
@@ -177,12 +183,15 @@ export default function DashboardPage() {
           wraps: monthWraps || 0,
         }
       };
+
+      console.log(`✅ Dashboard stats loaded in ${Date.now() - startTime}ms`);
+      return result;
     },
     enabled: !!user?.id && mounted,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes - cache for 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: 'always', // Always refetch on mount
+    refetchOnWindowFocus: false, // Don't refetch on window focus
+    refetchOnMount: false, // Don't refetch on every mount (use cache)
     placeholderData: (previousData) => previousData, // Keep showing old data while refetching
   });
 
@@ -192,22 +201,27 @@ export default function DashboardPage() {
     queryFn: async () => {
       if (!user?.id) return [];
 
+      console.log('📅 Fetching upcoming events...');
+      const startTime = Date.now();
+
       const { data, error } = await supabase
         .from('events')
         .select('id, title, location, start_date, status, metadata')
         .eq('operator_id', user.id)
         .eq('status', 'upcoming')
         .order('start_date', { ascending: true })
-        .limit(3);
+        .limit(3); // Only get 3 upcoming events
 
       if (error) throw error;
+      
+      console.log(`✅ Upcoming events loaded in ${Date.now() - startTime}ms`);
       return data || [];
     },
     enabled: !!user?.id && mounted,
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000, // 10 minutes - cache longer
     gcTime: 15 * 60 * 1000, // 15 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: 'always', // Always refetch on mount
+    refetchOnMount: false, // Use cache on mount
     placeholderData: (previousData) => previousData,
   });
 
@@ -217,15 +231,23 @@ export default function DashboardPage() {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      // Get user's event IDs first
+      console.log('🔔 Fetching recent activity...');
+      const startTime = Date.now();
+
+      // Get user's event IDs first (limit to recent events only)
       const { data: userEvents } = await supabase
         .from('events')
         .select('id')
-        .eq('operator_id', user.id);
+        .eq('operator_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20); // Only check recent 20 events
       
       const eventIds = userEvents?.map((e: any) => e.id) || [];
       
-      if (eventIds.length === 0) return [];
+      if (eventIds.length === 0) {
+        console.log(`✅ Recent activity loaded in ${Date.now() - startTime}ms (no events)`);
+        return [];
+      }
 
       // Get recent reviews and wraps in parallel
       const [
@@ -272,13 +294,14 @@ export default function DashboardPage() {
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 4);
 
+      console.log(`✅ Recent activity loaded in ${Date.now() - startTime}ms`);
       return activities;
     },
     enabled: !!user?.id && mounted,
-    staleTime: 1 * 60 * 1000, // 1 minute for activity
+    staleTime: 2 * 60 * 1000, // 2 minutes for activity (increased from 1)
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: 'always', // Always refetch on mount
+    refetchOnMount: false, // Use cache on mount
     placeholderData: (previousData) => previousData,
   });
 
