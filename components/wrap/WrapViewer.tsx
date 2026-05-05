@@ -19,9 +19,23 @@ export function WrapViewer({ wrap }: WrapViewerProps) {
   const primaryColor = operator?.brand_color_1 || '#1B4D3E';
   const accentColor = operator?.brand_color_2 || '#F4C542';
 
-  const rating = wrapData.rating || 5;
-  const treesPlanted = wrapData.trees_planted || 0;
-  const photos = wrapData.photos || [];
+  const rating = wrapData.rating || wrapData.guest?.rating || wrapData.statistics?.average_rating || 5;
+  const treesPlanted = wrapData.environmental_impact?.trees_planted || wrapData.trees_planted || 0;
+  
+  // Get photos from guest.photos first, fallback to photos array
+  const photos = (() => {
+    if (Array.isArray(wrapData.guest?.photos)) {
+      return wrapData.guest.photos.filter((p: any) => p && p !== '');
+    }
+    if (Array.isArray(wrapData.photos?.all_photos)) {
+      return wrapData.photos.all_photos.filter((p: any) => p && p !== '');
+    }
+    if (Array.isArray(wrapData.photos)) {
+      return wrapData.photos.filter((p: any) => p && p !== '');
+    }
+    return [];
+  })();
+  
   const highlights = wrapData.highlights || [];
 
   return (
