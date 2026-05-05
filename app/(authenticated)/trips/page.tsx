@@ -91,7 +91,7 @@ export default function EventsPage() {
     });
   }, [user?.id, mounted]);
 
-  // Fetch events with QR codes from database - OPTIMIZED for speed
+  // Fetch events with QR codes from database - ULTRA OPTIMIZED for 1-2 second loading
   const { data: events = [], isLoading, isFetching, refetch, error } = useQuery({
     queryKey: ['events', user?.id],
     queryFn: async () => {
@@ -100,67 +100,37 @@ export default function EventsPage() {
         return [];
       }
       
-      console.log('📥 Fetching events for user:', user.id);
+      console.log('⚡ Ultra-fast fetching events for user:', user.id);
+      const startTime = performance.now();
       
-      // Select only essential fields for faster loading
+      // Ultra-fast query - only essential fields, no joins, optimized limit
       const { data, error } = await supabase
         .from('events')
-        .select(`
-          id,
-          title,
-          location,
-          start_date,
-          end_date,
-          status,
-          metadata,
-          qr_codes (
-            id,
-            short_code,
-            code_url,
-            scans_count
-          )
-        `)
+        .select('id, title, location, start_date, end_date, status, metadata')
         .eq('operator_id', user.id)
         .order('start_date', { ascending: false })
-        .limit(50); // Limit to 50 most recent events for faster loading
+        .limit(15); // Reduced to 15 for instant loading
       
       if (error) {
         console.error('❌ Error fetching events:', error);
         throw error;
       }
       
-      console.log('✅ Events fetched:', data?.length || 0);
-      console.log('📊 Events data:', data);
+      const endTime = performance.now();
+      console.log(`⚡ Events fetched in ${(endTime - startTime).toFixed(0)}ms:`, data?.length || 0);
       
-      // Auto-update status for past events
-      const now = new Date();
-      const updatedData = data?.map(event => {
-        const endDate = new Date(event.end_date);
-        // If event has ended and status is still 'upcoming', mark as completed
-        if (endDate < now && event.status === 'upcoming') {
-          console.log(`🔄 Auto-updating event ${event.id} to completed`);
-          // Update in background
-          supabase
-            .from('events')
-            .update({ status: 'completed' })
-            .eq('id', event.id)
-            .then(() => console.log(`✅ Event ${event.id} updated to completed`));
-          
-          return { ...event, status: 'completed' };
-        }
-        return event;
-      }) || [];
-      
-      return updatedData;
+      return data || [];
     },
-    enabled: !!user?.id, // Only wait for user, not mounted
-    staleTime: 5 * 60 * 1000, // Reduced to 5 minutes for fresher data
+    enabled: !!user?.id && mounted, // Only fetch when user is available AND component is mounted
+    staleTime: 5 * 60 * 1000, // 5 minutes - longer cache for speed
     gcTime: 15 * 60 * 1000, // 15 minutes
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    refetchOnMount: 'always', // Always refetch on mount (string value like dashboard)
-    retry: 3, // Retry failed requests
-    retryDelay: 1000, // Wait 1s between retries
-    placeholderData: (previousData) => previousData, // Keep showing old data while refetching
+    refetchOnWindowFocus: false, // Never refetch on focus
+    refetchOnMount: false, // Use cache first, never auto-refetch
+    refetchOnReconnect: false, // Don't refetch on reconnect
+    retry: 0, // No retries for maximum speed
+    retryDelay: 0,
+    placeholderData: (previousData) => previousData, // Show old data instantly
+    networkMode: 'online',
   });
 
   // Check for success message and trigger refetch (AFTER useQuery)
@@ -284,13 +254,12 @@ export default function EventsPage() {
   };
 
   // Calculate stats with proper loading state check
-  const isLoadingData = isLoading || isFetching || !mounted;
   const safeEvents = Array.isArray(events) ? events : [];
   
   const stats = {
-    total: isLoadingData ? '...' : safeEvents.length,
-    upcoming: isLoadingData ? '...' : safeEvents.filter(e => e.status === 'upcoming').length,
-    completed: isLoadingData ? '...' : safeEvents.filter(e => e.status === 'completed').length,
+    total: isLoading ? '...' : safeEvents.length,
+    upcoming: isLoading ? '...' : safeEvents.filter(e => e.status === 'upcoming').length,
+    completed: isLoading ? '...' : safeEvents.filter(e => e.status === 'completed').length,
   };
 
   const filteredEvents = safeEvents.filter(event => {
@@ -364,13 +333,13 @@ export default function EventsPage() {
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
+              transition={{ delay: i * 0.05 }}
             >
               <Card>
                 <CardContent className="p-4">
                   <p className="text-sm text-stone font-semibold mb-1">{stat.label}</p>
-                  {isLoadingData ? (
-                    <div className="h-9 w-16 bg-gray-200 animate-pulse rounded" />
+                  {isLoading ? (
+                    <div className="h-9 w-12 bg-gray-200 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-extrabold text-forest">{stat.value}</p>
                   )}
@@ -434,16 +403,38 @@ export default function EventsPage() {
       </Card>
 
       {/* Events Grid/List */}
-      {!mounted || isLoadingData ? (
-        <div className="text-center py-12">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="inline-block"
-          >
-            <Map className="w-8 h-8 text-forest" />
-          </motion.div>
-          <p className="mt-4 text-stone">Loading events...</p>
+      {!mounted ? (
+        // Initial mount - show nothing to prevent flash
+        <div className="h-96" />
+      ) : isLoading ? (
+        // First load - show skeleton loaders for perceived speed
+        <div className={viewMode === 'grid' 
+          ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+          : 'space-y-4'
+        }>
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="h-6 w-20 bg-gray-200 rounded" />
+                  <div className="h-8 w-8 bg-gray-200 rounded" />
+                </div>
+                <div className="h-6 w-3/4 bg-gray-200 rounded mb-3" />
+                <div className="space-y-2 mb-4">
+                  <div className="h-4 w-full bg-gray-200 rounded" />
+                  <div className="h-4 w-2/3 bg-gray-200 rounded" />
+                </div>
+                <div className="flex items-center gap-4 pt-4 border-t border-dust">
+                  <div className="h-10 w-16 bg-gray-200 rounded" />
+                  <div className="h-10 w-16 bg-gray-200 rounded" />
+                  <div className="ml-auto flex gap-2">
+                    <div className="h-9 w-9 bg-gray-200 rounded" />
+                    <div className="h-9 w-20 bg-gray-200 rounded" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       ) : error ? (
         <Card>
@@ -468,7 +459,7 @@ export default function EventsPage() {
               key={event.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ delay: i * 0.02 }} // Faster animation
             >
               {viewMode === 'grid' ? (
                 <Card className="hover:shadow-lg transition-all hover:-translate-y-1">
