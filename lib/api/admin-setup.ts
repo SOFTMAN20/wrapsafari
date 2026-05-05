@@ -57,17 +57,25 @@ export const adminSetup = {
   /**
    * Get all operators (for admin to promote)
    */
-  async getAllOperators(): Promise<Array<{ id: string; name: string; email: string; role: string }>> {
+  async getAllOperators(): Promise<Array<{ id: string; business_name: string; email: string; role: string }>> {
     try {
       const { data, error } = await supabase
         .from('operators')
-        .select('id, name, email, role')
+        .select('id, business_name, profiles(email, role)')
         .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching operators:', error);
         return [];
       }
+
+      // Transform data to match expected format
+      return (data || []).map((op: any) => ({
+        id: op.id,
+        business_name: op.business_name,
+        email: op.profiles?.email || '',
+        role: op.profiles?.role || 'operator'
+      }));
 
       return data ?? [];
     } catch (err) {

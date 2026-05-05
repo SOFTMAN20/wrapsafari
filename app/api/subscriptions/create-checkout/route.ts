@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     // Get operator details
     const { data: operator, error: operatorError } = await supabase
       .from('operators')
-      .select('id, name, business_name, email')
+      .select('id, business_name')
       .eq('id', user.id)
       .single();
 

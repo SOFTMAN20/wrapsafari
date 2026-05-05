@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .maybeSingle(),
         supabase
           .from('operators')
-          .select('id, name, business_name, email, logo_url, brand_color_1, brand_color_2')
+          .select('id, business_name, logo_url, brand_color_1, brand_color_2')
           .eq('id', userId)
           .maybeSingle()
       ]);
