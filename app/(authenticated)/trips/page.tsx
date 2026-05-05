@@ -118,16 +118,17 @@ export default function EventsPage() {
       
       const endTime = performance.now();
       console.log(`⚡ Events fetched in ${(endTime - startTime).toFixed(0)}ms:`, data?.length || 0);
+      console.log('📋 Events data:', data);
       
       return data || [];
     },
     enabled: !!user?.id && mounted, // Only fetch when user is available AND component is mounted
-    staleTime: 5 * 60 * 1000, // 5 minutes - longer cache for speed
-    gcTime: 15 * 60 * 1000, // 15 minutes
-    refetchOnWindowFocus: false, // Never refetch on focus
-    refetchOnMount: false, // Use cache first, never auto-refetch
-    refetchOnReconnect: false, // Don't refetch on reconnect
-    retry: 0, // No retries for maximum speed
+    staleTime: 0, // Always fetch fresh data - no cache
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+    refetchOnMount: true, // Always refetch on mount to get fresh data
+    refetchOnReconnect: true, // Refetch on reconnect
+    retry: 1, // Retry once if fails
     retryDelay: 0,
     placeholderData: (previousData) => previousData, // Show old data instantly
     networkMode: 'online',
