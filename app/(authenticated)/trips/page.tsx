@@ -91,16 +91,22 @@ export default function EventsPage() {
     });
   }, [user?.id, mounted]);
 
-  // Check for success message
+  // Check for success message and trigger refetch
   useEffect(() => {
     if (searchParams?.get('success') === 'created') {
+      console.log('✅ Event created, showing success message and refetching...');
       setShowSuccessMessage(true);
+      
+      // Force immediate refetch of events
+      refetch();
+      
       // Clear the URL parameter
       router.replace('/trips');
+      
       // Hide message after 5 seconds
       setTimeout(() => setShowSuccessMessage(false), 5000);
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, refetch]);
 
   // Fetch events with QR codes from database - OPTIMIZED for speed
   const { data: events = [], isLoading, isFetching, refetch, error } = useQuery({

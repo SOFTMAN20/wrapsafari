@@ -283,14 +283,14 @@ export default function CreateTripPage() {
     onSuccess: (newEvent) => {
       console.log('🎉 Event created successfully:', newEvent.id);
       
-      // Navigate immediately without waiting for invalidations
-      router.push('/trips?success=created');
+      // Invalidate queries immediately (blocking)
+      queryClient.invalidateQueries({ queryKey: ['events', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['upcoming-events', user?.id] });
       
-      // Invalidate queries in background (non-blocking)
+      // Small delay to ensure cache is cleared before navigation
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['events', user?.id] });
-        queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id] });
-        queryClient.invalidateQueries({ queryKey: ['upcoming-events', user?.id] });
+        router.push('/trips?success=created');
       }, 100);
     },
     onError: (error: any) => {
