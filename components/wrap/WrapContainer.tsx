@@ -40,10 +40,18 @@ export default function WrapContainer({ wrapData }: WrapContainerProps) {
     guest_name: wrapData.guest_name || 'Guest',
     guest_rating: wrapData.data?.statistics?.average_rating || wrapData.data?.guest?.rating || 5,
     guest_review: wrapData.data?.guest?.review_text || '',
-    // Use all photos from the event - ensure we filter out nulls
-    guest_photos: Array.isArray(wrapData.data?.photos?.all_photos) 
-      ? wrapData.data.photos.all_photos.filter((p: any) => p !== null && p !== undefined && p !== '')
-      : [],
+    // Use guest's own photos first, fallback to all photos
+    guest_photos: (() => {
+      // Try guest.photos first (individual wrap)
+      if (Array.isArray(wrapData.data?.guest?.photos)) {
+        return wrapData.data.guest.photos.filter((p: any) => p !== null && p !== undefined && p !== '');
+      }
+      // Fallback to all_photos (aggregated wrap)
+      if (Array.isArray(wrapData.data?.photos?.all_photos)) {
+        return wrapData.data.photos.all_photos.filter((p: any) => p !== null && p !== undefined && p !== '');
+      }
+      return [];
+    })(),
     
     // Aggregated Stats (from all reviews)
     stats: {
