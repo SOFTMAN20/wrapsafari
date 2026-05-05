@@ -91,23 +91,6 @@ export default function EventsPage() {
     });
   }, [user?.id, mounted]);
 
-  // Check for success message and trigger refetch
-  useEffect(() => {
-    if (searchParams?.get('success') === 'created') {
-      console.log('✅ Event created, showing success message and refetching...');
-      setShowSuccessMessage(true);
-      
-      // Force immediate refetch of events
-      refetch();
-      
-      // Clear the URL parameter
-      router.replace('/trips');
-      
-      // Hide message after 5 seconds
-      setTimeout(() => setShowSuccessMessage(false), 5000);
-    }
-  }, [searchParams, router, refetch]);
-
   // Fetch events with QR codes from database - OPTIMIZED for speed
   const { data: events = [], isLoading, isFetching, refetch, error } = useQuery({
     queryKey: ['events', user?.id],
@@ -179,6 +162,23 @@ export default function EventsPage() {
     retryDelay: 1000, // Wait 1s between retries
     placeholderData: (previousData) => previousData, // Keep showing old data while refetching
   });
+
+  // Check for success message and trigger refetch (AFTER useQuery)
+  useEffect(() => {
+    if (searchParams?.get('success') === 'created') {
+      console.log('✅ Event created, showing success message and refetching...');
+      setShowSuccessMessage(true);
+      
+      // Force immediate refetch of events
+      refetch();
+      
+      // Clear the URL parameter
+      router.replace('/trips');
+      
+      // Hide message after 5 seconds
+      setTimeout(() => setShowSuccessMessage(false), 5000);
+    }
+  }, [searchParams, router, refetch]);
 
   const handleShowQR = async (event: any) => {
     setSelectedEvent(event);
