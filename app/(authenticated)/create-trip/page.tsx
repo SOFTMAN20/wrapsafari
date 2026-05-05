@@ -195,80 +195,90 @@ export default function CreateTripPage() {
   // Optimized create event mutation
   const createEventMutation = useMutation({
     mutationFn: async (eventData: any) => {
-      console.log('🚀 Creating event...');
+      console.log('🚀 Creating event via API...');
       const startTime = Date.now();
       
-      const { data, error } = await supabase
-        .from('events')
-        .insert([{
-          operator_id: user?.id,
-          type: eventData.type,
-          title: eventData.trip_name,
-          location: eventData.destination_names?.[0] || eventData.tour_locations?.[0] || eventData.trip_name || 'Event Location',
-          start_date: eventData.start_date,
-          end_date: eventData.end_date,
-          status: eventData.status.toLowerCase(),
-          metadata: {
-            // Common fields
-            destination_ids: eventData.destination_ids || [],
-            destination_names: eventData.destination_names || [],
-            description: eventData.description || '',
-            max_guests: parseInt(eventData.max_guests) || 10,
-            difficulty_level: eventData.difficulty_level || 'moderate',
-            price_per_person: 0, // Price removed from form
-            duration_days: parseInt(eventData.duration_days) || 1,
-            includes: eventData.includes || [],
-            excludes: eventData.excludes || [],
-            requirements: eventData.requirements || [],
-            
-            // Safari-specific metadata
-            ...(eventData.type === 'safari' && {
-              safari_type: eventData.safari_type || 'game_drive',
-              accommodation: eventData.accommodation || '',
-              conservation_partner: eventData.conservation_partner || '',
-              big_five_tracking: eventData.big_five_tracking || false,
-            }),
-            
-            // Marathon-specific metadata
-            ...(eventData.type === 'marathon' && {
-              marathon_category: eventData.marathon_category || 'full',
-              distance_km: parseFloat(eventData.distance_km) || 0,
-              route_name: eventData.route_name || '',
-              route_description: eventData.route_description || '',
-              checkpoints: parseInt(eventData.checkpoints) || 0,
-              elevation_gain: parseInt(eventData.elevation_gain) || 0,
-              terrain: eventData.terrain || 'road',
-              start_time: eventData.start_time || '',
-            }),
-            
-            // Tour-specific metadata
-            ...(eventData.type === 'tour' && {
-              tour_type: eventData.tour_type || 'walking',
-              duration_hours: parseFloat(eventData.duration_hours) || 0,
-              tour_locations: eventData.tour_locations || [],
-              language: eventData.language || 'English',
-              max_group_size: parseInt(eventData.max_group_size) || 0,
-              tour_difficulty: eventData.tour_difficulty || 'moderate',
-              includes_meals: eventData.includes_meals || false,
-            }),
-          }
-        }])
-        .select()
-        .single();
+      const payload = {
+        operator_id: user?.id,
+        type: eventData.type,
+        title: eventData.trip_name,
+        location: eventData.destination_names?.[0] || eventData.tour_locations?.[0] || eventData.trip_name || 'Event Location',
+        start_date: eventData.start_date,
+        end_date: eventData.end_date,
+        status: eventData.status.toLowerCase(),
+        metadata: {
+          // Common fields
+          destination_ids: eventData.destination_ids || [],
+          destination_names: eventData.destination_names || [],
+          description: eventData.description || '',
+          max_guests: parseInt(eventData.max_guests) || 10,
+          difficulty_level: eventData.difficulty_level || 'moderate',
+          price_per_person: 0, // Price removed from form
+          duration_days: parseInt(eventData.duration_days) || 1,
+          includes: eventData.includes || [],
+          excludes: eventData.excludes || [],
+          requirements: eventData.requirements || [],
+          
+          // Safari-specific metadata
+          ...(eventData.type === 'safari' && {
+            safari_type: eventData.safari_type || 'game_drive',
+            accommodation: eventData.accommodation || '',
+            conservation_partner: eventData.conservation_partner || '',
+            big_five_tracking: eventData.big_five_tracking || false,
+          }),
+          
+          // Marathon-specific metadata
+          ...(eventData.type === 'marathon' && {
+            marathon_category: eventData.marathon_category || 'full',
+            distance_km: parseFloat(eventData.distance_km) || 0,
+            route_name: eventData.route_name || '',
+            route_description: eventData.route_description || '',
+            checkpoints: parseInt(eventData.checkpoints) || 0,
+            elevation_gain: parseInt(eventData.elevation_gain) || 0,
+            terrain: eventData.terrain || 'road',
+            start_time: eventData.start_time || '',
+          }),
+          
+          // Tour-specific metadata
+          ...(eventData.type === 'tour' && {
+            tour_type: eventData.tour_type || 'walking',
+            duration_hours: parseFloat(eventData.duration_hours) || 0,
+            tour_locations: eventData.tour_locations || [],
+            language: eventData.language || 'English',
+            max_group_size: parseInt(eventData.max_group_size) || 0,
+            tour_difficulty: eventData.tour_difficulty || 'moderate',
+            includes_meals: eventData.includes_meals || false,
+          }),
+        }
+      };
+      
+      console.log('📤 Sending payload:', payload);
+      
+      const response = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
       
       const endTime = Date.now();
-      console.log(`✅ Event created in ${endTime - startTime}ms`);
+      console.log(`⏱️ API call completed in ${endTime - startTime}ms`);
       
-      if (error) {
-        console.error('❌ Create event error:', error);
-        throw new Error(error.message || 'Failed to create event');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('❌ API error:', errorData);
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
       
-      if (!data) {
-        throw new Error('No data returned from database');
+      const result = await response.json();
+      console.log('✅ Event created successfully:', result.data);
+      
+      if (!result.data) {
+        throw new Error('No data returned from API');
       }
       
-      return data;
+      return result.data;
     },
     onSuccess: (newEvent) => {
       console.log('🎉 Event created successfully:', newEvent.id);

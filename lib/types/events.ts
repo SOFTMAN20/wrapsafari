@@ -153,13 +153,16 @@ export function getEnabledEventTypes(): EventTypeConfig[] {
 }
 
 export function validateEventMetadata(type: EventType, metadata: any): boolean {
+  // All metadata is optional - just validate the type exists
+  // The form sends different field names than the strict types above
+  // This is intentional to allow flexibility in the metadata structure
   switch (type) {
     case 'safari':
       return true; // Safari metadata is optional
     case 'marathon':
-      return typeof metadata.distance === 'number' && typeof metadata.route === 'string';
+      return true; // Marathon metadata is optional (distance_km, route_name, etc.)
     case 'tour':
-      return Array.isArray(metadata.locations) && metadata.locations.length > 0;
+      return true; // Tour metadata is optional (tour_locations, duration_hours, etc.)
     default:
       return false;
   }

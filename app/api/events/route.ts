@@ -4,7 +4,7 @@ import { validateEventMetadata, type EventType } from '@/lib/types/events';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const body = await request.json();
 
     const {
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     
     const operatorId = searchParams.get('operator_id');
