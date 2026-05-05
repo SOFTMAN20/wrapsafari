@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true;
     
     // Initial session check - optimized for speed
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       if (!mounted) return;
       
       setSession(session);
@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event: string, session: Session | null) => {
         if (!mounted) return;
         
         setSession(session);
@@ -146,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('☁️ Signing out from Supabase (background)...');
     supabase.auth.signOut().then(() => {
       console.log('✅ Supabase signOut complete');
-    }).catch((error) => {
+    }).catch((error: Error) => {
       console.error('❌ Supabase signOut error:', error);
     });
     
