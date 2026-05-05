@@ -52,12 +52,22 @@ export default async function WrapPage({ params }: WrapPageProps) {
   });
 
   // Transform data for GuestWrapPage component
-  // Reviews data is stored in wrap.data JSONB field
+  // Get review data from the linked review if available
+  let reviewData = null;
+  if (wrap.review_id) {
+    const { data: review } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('id', wrap.review_id)
+      .single();
+    reviewData = review;
+  }
+
   const wrapData = {
     ...wrap,
     guest_name: wrap.guest_name,
     data: wrap.data,
-    reviews: wrap.data, // Reviews data is in the data JSONB field
+    reviews: reviewData, // Use actual review data from reviews table
     events: wrap.events,
   };
 
