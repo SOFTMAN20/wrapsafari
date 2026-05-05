@@ -32,17 +32,11 @@ export default async function WrapPage({ params }: WrapPageProps) {
     .maybeSingle();
 
   if (error) {
-    console.error('❌ Wrap fetch error:', {
-      error,
-      wrapId,
-      errorCode: error.code,
-      errorMessage: error.message,
-      errorDetails: error.details,
-      errorHint: error.hint,
-    });
+    console.error('❌ Wrap fetch error:', error);
+    console.error('Error details:', JSON.stringify(error, null, 2));
     
-    // For errors, throw to show error page
-    throw new Error(`Failed to fetch wrap: ${error.message}`);
+    // For errors, show error page with details
+    throw new Error(`Failed to fetch wrap: ${error.message || 'Unknown error'}`);
   }
 
   if (!wrap) {
