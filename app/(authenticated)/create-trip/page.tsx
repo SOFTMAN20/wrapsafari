@@ -280,18 +280,18 @@ export default function CreateTripPage() {
       
       return result.data;
     },
-    onSuccess: (newEvent) => {
+    onSuccess: async (newEvent) => {
       console.log('🎉 Event created successfully:', newEvent.id);
       
-      // Invalidate queries immediately (blocking)
-      queryClient.invalidateQueries({ queryKey: ['events', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['upcoming-events', user?.id] });
+      // Invalidate and refetch queries immediately (await to ensure completion)
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['events', user?.id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['upcoming-events', user?.id], refetchType: 'active' }),
+      ]);
       
-      // Small delay to ensure cache is cleared before navigation
-      setTimeout(() => {
-        router.push('/trips?success=created');
-      }, 100);
+      // Navigate immediately - no delay needed
+      router.push('/trips?success=created');
     },
     onError: (error: any) => {
       console.error('❌ Failed to create event:', error);

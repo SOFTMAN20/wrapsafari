@@ -5,6 +5,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { QueryProvider } from "@/contexts/QueryProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { SessionCleanup } from "@/components/SessionCleanup";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("h-full", "antialiased", "font-sans")}>
       <body className="min-h-full flex flex-col font-sans bg-parchment text-ink">
+        <SessionCleanup />
         <QueryProvider>
           <AuthProvider>
             <React.Suspense fallback={

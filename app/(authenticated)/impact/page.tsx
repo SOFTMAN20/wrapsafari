@@ -253,7 +253,7 @@ export default function ImpactPage() {
           </motion.div>
         )}
 
-        {stats && stats.total_trees_planted === 0 && (
+        {stats && stats.total_events === 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
             <Card>
               <CardContent className="p-12 text-center">
@@ -265,8 +265,37 @@ export default function ImpactPage() {
                   Create events and collect reviews to start planting trees.
                   Every review contributes to reforestation efforts!
                 </p>
-                <Button onClick={() => window.location.href = '/trips'} className="bg-forest hover:bg-forest-light text-white">
+                <Button onClick={() => window.location.href = '/create-trip'} className="bg-forest hover:bg-forest-light text-white">
                   Create Your First Event
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {stats && stats.total_events > 0 && stats.total_trees_planted === 0 && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Trees className="w-16 h-16 text-forest/40 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-forest mb-2">
+                  Collect Reviews to Plant Trees
+                </h3>
+                <p className="text-stone mb-6">
+                  You have {stats.total_events} event{stats.total_events > 1 ? 's' : ''} created! 
+                  Share your QR codes with guests to collect reviews. 
+                  Trees are planted automatically based on the number of reviews received.
+                </p>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                  <h4 className="font-bold text-green-800 mb-2">Tree Allocation Formula:</h4>
+                  <ul className="text-sm text-green-700 space-y-1">
+                    <li>• 1-10 reviews = 1 tree planted</li>
+                    <li>• 11-25 reviews = 2 trees planted</li>
+                    <li>• 26+ reviews = 3 trees planted</li>
+                  </ul>
+                </div>
+                <Button onClick={() => window.location.href = '/trips'} className="bg-forest hover:bg-forest-light text-white">
+                  View Your Events
                 </Button>
               </CardContent>
             </Card>

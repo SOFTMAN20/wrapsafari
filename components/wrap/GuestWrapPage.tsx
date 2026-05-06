@@ -16,6 +16,19 @@ export default function GuestWrapPage({ wrapData }: GuestWrapPageProps) {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [showImagePreview, setShowImagePreview] = useState(false);
   
+  // Debug: Log wrap data to see what we're receiving
+  useEffect(() => {
+    console.log('🔍 GuestWrapPage received wrapData:', {
+      hasReviews: !!wrapData.reviews,
+      reviewPhotoUrls: wrapData.reviews?.photo_urls,
+      dataGuestPhotos: wrapData.data?.guest_photos,
+      dataPhotosAllPhotos: wrapData.data?.photos?.all_photos,
+      dataGuestPhotosNested: wrapData.data?.guest?.photos,
+      reviewId: wrapData.review_id,
+      guestName: wrapData.guest_name,
+    });
+  }, [wrapData]);
+  
   // Generate certificate number once on client side to avoid hydration mismatch
   const [certNumber, setCertNumber] = useState<number>(100000);
   
@@ -34,14 +47,32 @@ export default function GuestWrapPage({ wrapData }: GuestWrapPageProps) {
     guest_review: wrapData.reviews?.comment || wrapData.reviews?.review_text || '',
     memorable_moment: wrapData.reviews?.memorable_moment || '',
     guest_photos: (() => {
-      if (wrapData.reviews?.photo_urls && Array.isArray(wrapData.reviews.photo_urls)) {
-        return wrapData.reviews.photo_urls.filter((p: string) => p !== null && p !== '');
+      // Priority 1: Check wrap's own data.guest_photos (most reliable)
+      if (wrapData.data?.guest_photos && Array.isArray(wrapData.data.guest_photos)) {
+        const photos = wrapData.data.guest_photos.filter((p: string) => p !== null && p !== '');
+        if (photos.length > 0) return photos;
       }
-      const photos = [];
-      if (wrapData.reviews?.photo_1_url) photos.push(wrapData.reviews.photo_1_url);
-      if (wrapData.reviews?.photo_2_url) photos.push(wrapData.reviews.photo_2_url);
-      if (wrapData.reviews?.photo_3_url) photos.push(wrapData.reviews.photo_3_url);
-      return photos;
+      
+      // Priority 2: Check wrap's data.photos.all_photos
+      if (wrapData.data?.photos?.all_photos && Array.isArray(wrapData.data.photos.all_photos)) {
+        const photos = wrapData.data.photos.all_photos.filter((p: string) => p !== null && p !== '');
+        if (photos.length > 0) return photos;
+      }
+      
+      // Priority 3: Check wrap's data.guest.photos
+      if (wrapData.data?.guest?.photos && Array.isArray(wrapData.data.guest.photos)) {
+        const photos = wrapData.data.guest.photos.filter((p: string) => p !== null && p !== '');
+        if (photos.length > 0) return photos;
+      }
+      
+      // Priority 4: Check reviews.photo_urls (from joined review data)
+      if (wrapData.reviews?.photo_urls && Array.isArray(wrapData.reviews.photo_urls)) {
+        const photos = wrapData.reviews.photo_urls.filter((p: string) => p !== null && p !== '');
+        if (photos.length > 0) return photos;
+      }
+      
+      // Fallback: Empty array
+      return [];
     })(),
     operator: {
       business_name: wrapData.events?.operators?.business_name || 'SafariWrap',

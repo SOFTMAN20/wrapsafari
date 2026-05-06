@@ -140,11 +140,13 @@ export default function EventsPage() {
       console.log('✅ Event created, showing success message and refetching...');
       setShowSuccessMessage(true);
       
-      // Force immediate refetch of events
+      // Force immediate refetch of events (no delay)
       refetch();
       
-      // Clear the URL parameter
-      router.replace('/trips');
+      // Clear the URL parameter after a short delay to allow refetch to complete
+      setTimeout(() => {
+        router.replace('/trips', { scroll: false });
+      }, 100);
       
       // Hide message after 5 seconds
       setTimeout(() => setShowSuccessMessage(false), 5000);
