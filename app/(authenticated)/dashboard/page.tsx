@@ -81,7 +81,7 @@ export default function DashboardPage() {
            'Friend';
   }, [operator?.business_name, profile?.full_name]);
 
-  // Optimized stats query with single database call
+  // Optimized stats query with single database call - ALWAYS FRESH
   const { data: stats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: queryKeys.dashboardStats(user?.id || ''),
     queryFn: async () => {
@@ -188,16 +188,17 @@ export default function DashboardPage() {
       return result;
     },
     enabled: !!user?.id && mounted,
-    staleTime: 10 * 60 * 1000, // 10 minutes - longer cache for speed
-    gcTime: 20 * 60 * 1000, // 20 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    retry: 0, // No retries for speed
-    placeholderData: (previousData) => previousData,
+    staleTime: 0, // CRITICAL: Always consider data stale - refetch on mount
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+    refetchOnMount: 'always', // CRITICAL: Always refetch on mount for fresh data
+    refetchOnReconnect: true, // Refetch on reconnect
+    retry: 1, // Retry once if fails
+    retryDelay: 0,
+    networkMode: 'online',
   });
 
-  // Optimized upcoming events query
+  // Optimized upcoming events query - ALWAYS FRESH
   const { data: upcomingEvents, isLoading: eventsLoading } = useQuery({
     queryKey: queryKeys.upcomingEvents(user?.id || ''),
     queryFn: async () => {
@@ -220,16 +221,17 @@ export default function DashboardPage() {
       return data || [];
     },
     enabled: !!user?.id && mounted,
-    staleTime: 15 * 60 * 1000, // 15 minutes - very long cache
-    gcTime: 30 * 60 * 1000, // 30 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    retry: 0,
-    placeholderData: (previousData) => previousData,
+    staleTime: 0, // CRITICAL: Always consider data stale
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+    refetchOnMount: 'always', // CRITICAL: Always refetch on mount
+    refetchOnReconnect: true, // Refetch on reconnect
+    retry: 1,
+    retryDelay: 0,
+    networkMode: 'online',
   });
 
-  // Optimized recent activity query
+  // Optimized recent activity query - ALWAYS FRESH
   const { data: recentActivity, isLoading: activityLoading } = useQuery({
     queryKey: queryKeys.recentActivity(user?.id || ''),
     queryFn: async () => {
@@ -302,13 +304,14 @@ export default function DashboardPage() {
       return activities;
     },
     enabled: !!user?.id && mounted,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    retry: 0,
-    placeholderData: (previousData) => previousData,
+    staleTime: 0, // CRITICAL: Always consider data stale
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+    refetchOnMount: 'always', // CRITICAL: Always refetch on mount
+    refetchOnReconnect: true, // Refetch on reconnect
+    retry: 1,
+    retryDelay: 0,
+    networkMode: 'online',
   });
 
   // Memoized helper function
@@ -341,17 +344,6 @@ export default function DashboardPage() {
   const handleViewEvent = useCallback((eventId: string) => {
     router.push(`/trip/${eventId}`);
   }, [router]);
-
-  // Prefetch critical pages
-  useEffect(() => {
-    if (mounted) {
-      queryClient.prefetchQuery({
-        queryKey: ['events', user?.id],
-        queryFn: () => fetch('/api/events').then(res => res.json()),
-        staleTime: 5 * 60 * 1000,
-      });
-    }
-  }, [mounted, queryClient, user?.id]);
 
   if (!mounted) {
     return null; // Prevent hydration mismatch
