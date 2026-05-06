@@ -91,7 +91,7 @@ export default function EventsPage() {
     });
   }, [user?.id, mounted]);
 
-  // Fetch events with QR codes from database - ULTRA OPTIMIZED for 1-2 second loading
+  // Fetch events with QR codes from database - ULTRA OPTIMIZED for instant updates
   const { data: events = [], isLoading, isFetching, refetch, error } = useQuery({
     queryKey: ['events', user?.id],
     queryFn: async () => {
@@ -123,35 +123,29 @@ export default function EventsPage() {
       return data || [];
     },
     enabled: !!user?.id && mounted, // Only fetch when user is available AND component is mounted
-    staleTime: 0, // Always fetch fresh data - no cache
+    staleTime: 0, // Always consider data stale - refetch on mount
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true, // Refetch when window gets focus
-    refetchOnMount: true, // Always refetch on mount to get fresh data
+    refetchOnMount: 'always', // CRITICAL: Always refetch on mount to get fresh data
     refetchOnReconnect: true, // Refetch on reconnect
     retry: 1, // Retry once if fails
     retryDelay: 0,
-    placeholderData: (previousData) => previousData, // Show old data instantly
     networkMode: 'online',
   });
 
   // Check for success message and trigger refetch (AFTER useQuery)
   useEffect(() => {
     if (searchParams?.get('success') === 'created') {
-      console.log('✅ Event created, showing success message and refetching...');
+      console.log('✅ Event created, showing success message...');
       setShowSuccessMessage(true);
       
-      // Force immediate refetch of events (no delay)
-      refetch();
-      
-      // Clear the URL parameter after a short delay to allow refetch to complete
-      setTimeout(() => {
-        router.replace('/trips', { scroll: false });
-      }, 100);
+      // Clear the URL parameter immediately (data already refetched before navigation)
+      router.replace('/trips', { scroll: false });
       
       // Hide message after 5 seconds
       setTimeout(() => setShowSuccessMessage(false), 5000);
     }
-  }, [searchParams, router, refetch]);
+  }, [searchParams, router]);
 
   const handleShowQR = async (event: any) => {
     setSelectedEvent(event);

@@ -283,14 +283,32 @@ export default function CreateTripPage() {
     onSuccess: async (newEvent) => {
       console.log('🎉 Event created successfully:', newEvent.id);
       
-      // Invalidate and refetch queries immediately (await to ensure completion)
+      // CRITICAL FIX: Invalidate queries and WAIT for refetch to complete
+      console.log('🔄 Invalidating queries and refetching...');
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['events', user?.id], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['upcoming-events', user?.id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ 
+          queryKey: ['events', user?.id], 
+          refetchType: 'active' 
+        }),
+        queryClient.invalidateQueries({ 
+          queryKey: ['dashboard-stats', user?.id], 
+          refetchType: 'active' 
+        }),
+        queryClient.invalidateQueries({ 
+          queryKey: ['upcoming-events', user?.id], 
+          refetchType: 'active' 
+        }),
       ]);
       
-      // Navigate immediately - no delay needed
+      // Force refetch to ensure data is fresh before navigation
+      await queryClient.refetchQueries({ 
+        queryKey: ['events', user?.id],
+        type: 'active'
+      });
+      
+      console.log('✅ Queries refetched, navigating to trips page...');
+      
+      // Navigate with success parameter
       router.push('/trips?success=created');
     },
     onError: (error: any) => {
